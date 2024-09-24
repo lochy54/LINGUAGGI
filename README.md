@@ -1,3 +1,12 @@
+# ORGANIZZAZIONE
+**Fate le vostre cartelle per gli esercizi.**
+
+Gruppo:
++ [Luca Carone Polettini](https://github.com/lochy54)
++ [Bea Oldrati](https://github.com/Bea-Oldr)
++ [Giacomo Guidi](https://github.com/SirFuryy)
++ [Samuele Scaravaggi](https://github.com/SamScara)
+
 # I LINGUAGGI FUNZIONALI
 ## Cosa è un linguaggio di programmazione funzionale?
 + Le funzioni sono oggetti di prima classe, quindi tutto ciò che è fatto coi può essere fatto con le funzioni *(passare da una funzione ad un altra)*.
