@@ -114,8 +114,14 @@ $$
 4! = 4 \times 3!
 $$
 Definizione matematica:
-//qui
-Una chiamate ricorsiva può essere
+   $$
+   n! = 
+   \begin{cases} 
+   1 & \text{if } n = 0 \\
+   n \times (n-1)! & \text{if } n > 0 
+   \end{cases}
+   $$
+Una chiamata ricorsiva può essere
 + **Diretta**: una funzione chiama se stessa
 + **Indiretta** una funzione chiama un altra funzione che chiama la funzione principale
 ```ml
@@ -129,25 +135,36 @@ In generale le funzioni ricorsive sono più facili da comprendere e in alcuni ca
 + ML è fortemente e staticamente tippato 
 + Il tipo di ogni istruzione è inferito dall'uso
 Dato che è fortemete tippato non posso avere problemi sui tipi.
-```ml
+```exe
 # 1+2*3;;
 - : int = 7
 # let pi = 4.0 * atan 1.0;;
 Error: This expression has type float but an expression was expected of type int
-(* aggiungo il punto per operazioni con i float *)
 # let pi = 4.0 *. atan 1.0;;
 val pi : float = 3.14159265358979312
 ```
+*Aggiungo il punto per operazioni con i float*.
+
 ### Operatori
 + Costanti: true , false
 + Operatori logici: &&, ||, not
 + Operatori razzionali: ==, <> *(equal and not equa)*, < >, <=, >=
-
+```exe
+# true;;
+- : bool = true
+# true || false;;
+- : bool = true
+# 1<2;;
+- : bool = true
+# 2.5<>2.5;;
+- : bool = false
+```
 ### Stringhe
 + Native in OCaML
 + Concatenation operator ^
 + Positional access [n]
-```ml
++ Esiste un modulo **String** con degli operatori
+```exe
 let s1 = "walter" and s2 = "cazzola" ;;
 val s1 : string = "walter"
 val s2 : string = "cazzola"
@@ -164,15 +181,12 @@ val b : bytes = Bytes.of_string "walter cazzola"
 # let s = Bytes.to_string b;;
 val s : string = "Walter Cazzola"
 ```
-Esiste un modulo **String** con degli operatori
-
-
 ### List
 + Omogenee
 + Operetor ::
 + Concatenation operator @ *(inefficente)*
-```ml
-[14:54]cazzola@surtur:~/lp/ml>ocaml
++ Esiste un modulo **List** con degli operatori
+```exe
 # [1; 1+1; 3];;
 - : int list = [1; 2; 3]
 # [1;'a';3.14];;
@@ -188,8 +202,15 @@ val l2 : int list = [4; 5; 6]
 val l1 : int list = [0; 1; 2; 3]
 # List.nth l1
 - : int = 2
+# let a_list = [2; 7; 25; 3; 11; -1; 0; 7; 25; 25; 999; -25; 7];;
+val a_list : int list = [2; 7; 25; 3; 11; -1; 0; 7; 25; 25; 999; -25; 7]
+# let rec is_in l x = if l==[] then false else x==List.hd(l) || is_in (List.tl l) x;;
+val is_in : 'a list -> 'a -> bool = <fun>
+# is_in a_list 11;;
+- : bool = true
+# is_in a_list 12;;
+- : bool = false
 ```
-Esiste un modulo **List** con degli operatori
 ### Count
 Conta gli elementi
 ```ml
@@ -217,7 +238,7 @@ hd::tl when count < i -> slice (count+1) res tl
 | hd::tl -> slice (count+1) (hd::res) tl
 in slice 0 [] l ;;
 ```
-//qui
+
 ## Tuples
 Liste di tipi eterogenei con lunghezza fissata. Sono più efficenti di una lista.
 ```exe
