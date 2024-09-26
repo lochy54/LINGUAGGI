@@ -1,30 +1,32 @@
-frame p un record/struct con campi argomento e valoiri di rutorno.Il frame è organizzato per saeppere sempre dove dar tornare i dati
+## Lezione 2
 
-Prpblema della ricordsione (creazione di tanti frame) --> risolto con tail recurising
++ frame p un record/struct con campi argomento e valoiri di rutorno.Il frame è organizzato per saeppere sempre dove dar tornare i dati
+
++ Prpblema della ricordsione (creazione di tanti frame) --> risolto con tail recurising
 Metodo che viene applicato dal compilatore per rendere più semplice la gestione della ricorsione senza creare nuovi frame (molto meno tempo e memoria utilizzati)
 
-Nel paradigma funzionale è sconsigliato il metodo if else, emglio usare il pattern matching
++ Nel paradigma funzionale è sconsigliato il metodo if else, emglio usare il pattern matching
 
-ML è fortemente (se dichiaro intero allora qualsiasi cosa che inserisco che non sia intero darà errore) e staticamente (lo fa compile time) tipato. QUesto permette di inferire direttamente sui tipi senza specificarli direttamente (lo capisce lui da solo)
++ ML è fortemente (se dichiaro intero allora qualsiasi cosa che inserisco che non sia intero darà errore) e staticamente (lo fa compile time) tipato. QUesto permette di inferire direttamente sui tipi senza specificarli direttamente (lo capisce lui da solo)
 
-Non c'è la coercion (o qualcosa del genere) (ad esempio esistono tipi diversi di moltiplicazione per moltiplicazione tra interi, tra float o mixati)
++ Non c'è la coercion (o qualcosa del genere) (ad esempio esistono tipi diversi di moltiplicazione per moltiplicazione tra interi, tra float o mixati)
 
-Appunto sui booleani: il diverso si fa con <> e non con !=
++ Appunto sui booleani: il diverso si fa con <> e non con !=
 
-Operazioni con le stringhe (native in ocaml ed immutabili se non attraverso la trasformaizone in byte e l'uso della funzione set)
++ Operazioni con le stringhe (native in ocaml ed immutabili se non attraverso la trasformaizone in byte e l'uso della funzione set)
 ^ oer concaterare dfue styringhe
 .[n] per accedere ad uno specifico carattere di una stringa
 
-Liste --> sequenza di elementi omogenei con un proprio costruttore (chiamato con ::) pensate per farci pattern matching sopra. La concatenazione è fatta molto male e conviene fare un aggiunta in testa e poi invertire la lista (create con le parentesi quadre[])
++ Liste --> sequenza di elementi omogenei con un proprio costruttore (chiamato con ::) pensate per farci pattern matching sopra. La concatenazione è fatta molto male e conviene fare un aggiunta in testa e poi invertire la lista (create con le parentesi quadre[])
 
-Come fare slicing e cerca index: dopop
++ Come fare slicing e cerca index: dopop
 
-Tuple --> eterogenee e di lunghezza fissata (creata con le parentesi tonde()) sono più efficenti delle liste (e sono eterogenee) (l'accesso avviene con il pattern matching)
++ Tuple --> eterogenee e di lunghezza fissata (creata con le parentesi tonde()) sono più efficenti delle liste (e sono eterogenee) (l'accesso avviene con il pattern matching)
 
-Gli array sono liste ad accessi diretto, omogenee e considerate come liste mutabili (create con [|1;3;4|] robda assurda).
++ Gli array sono liste ad accessi diretto, omogenee e considerate come liste mutabili (create con [|1;3;4|] robda assurda).
 Selezione con .(indice), assegnazione con .(indice) <- valore
 Si possono fare array innestati
 
-record --> sono coppie chiave valore, nativamente immutabili ma permettono di aggiungere mutable alle singole coppie per rendere quella coppia mutabile. SOno eterogenei. Creo un record usando type per definirlo come nuovo tipo
++ record --> sono coppie chiave valore, nativamente immutabili ma permettono di aggiungere mutable alle singole coppie per rendere quella coppia mutabile. SOno eterogenei. Creo un record usando type per definirlo come nuovo tipo
 
-Aliasing e varinat
++ Aliasing e varinat

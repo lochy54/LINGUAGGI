@@ -7,11 +7,22 @@ Gruppo:
 + [Giacomo Guidi](https://github.com/SirFuryy)
 + [Samuele Scaravaggi](https://github.com/SamScara)
 
+Link Utili:
++ [imparare ocaml in y minuti](https://learnxinyminutes.com/docs/ocaml/)
++ [100 esercizi ottimi per ocaml](https://ocaml.org/exercises)
++ [imparare ocaml in y minuti in greco](https://learnxinyminutes.com/docs/el-gr/ocaml-gr/)
+
 # I LINGUAGGI FUNZIONALI
 ## Cosa è un linguaggio di programmazione funzionale?
-+ Le funzioni sono oggetti di prima classe, quindi tutto ciò che è fatto coi può essere fatto con le funzioni *(passare da una funzione ad un altra)*.
+Partiamo dagli altri paradigmi di programmazione: i linguaggi imperativi pongono il loro focus principale sulla sequenezialità e semplicità del codice, mentre i linguaggi di programmazione orientati agli oggetti pongo il loro focus sulla rappresentazione del dato e sulla sua costruzione sotto forma di oggetto (P.S. Java per svecchiarsi sta adottando molti paradigmi funzionali).
+
+Nei linguaggi di porgrammazione a paradigma funzionale invece il focus principale è sulle funzioni. In esso infatti le funzioni sono oggetti di prima classe e vengono pensate come funzioni matematiche, quindi tutto ciò che è fatto coi può essere fatto con le funzioni *(passare da una funzione ad un altra)*.
+
+Questa visione delle funzioni in formato matematico, unita alla chiusura informatica, creano delle funzioni ben definite e che non generano side-effect *(importante punto di forza)*
 + La ricorsione è usata come struttura di controllo primaria. In alcuni linguaggi, non esiste nessun altro costrutto di loop.
-+ C'è un focus su il list processing.
++ C'è un focus sul list processing --> Di fatto non c'è nè l'assegnamento nè l'allocamento, ma solo la semplice ridenominazione di un valore/variabile/funzione.
+In questi linguaggi infatti gli stati sono considerati immutabili. Una volta creato, può essere modificato solo ricreandone un altro chiamando una funzione. In questo ambito il focus sul list oricessing svolge il ruolo di scoraggiare l'uso dello stato esterno in favore della expression evaluation
++ Tutto ciò è permesso dall'idea che un qualsiasi valore è fisso e viene al più ridenominato *(si lo so perdonatemi la ripetitività, dopo verrà ridetto tutto, ma penso chiarisca meglio l'idea)*
 + Le liste sono spesso usate con ricorsione su sottoliste *(sostituto per i loops)*.
 + I linguaggi funzionali puri evitano gli effetti collaterali, questo scoraggia l'uso di istruzioni a favore delle valutazioni di espressioni.
 ## Perchè un liguaggio funzionale?
@@ -102,6 +113,8 @@ let invert' = function
 true -> false
 | false -> true ;;
 ```
+In generale nei paradigmi funzionali è sempre meglio usare un pattern matcher rispetto ai costrutti if-else
+
 ## Funzioni ricorsive
 Una funzione è ricorsiva se chiama se stessa. Es: **Factorial**
 $$
@@ -131,9 +144,16 @@ print_endline("fact( 5) : - "^string_of_int(fact(5)));
 main();;
 ```
 In generale le funzioni ricorsive sono più facili da comprendere e in alcuni casi ho problemi che sono nativamente ricorsivi.
+
+Nello specifico invece il *problema principale della ricorsione è la creazione di tanti frame*. Un frame è un oggetto, simile ad un record di JAVA o ad una struct di Go, che contiene dei campi argomento e le indicazioni sui valori di ritorno che viene generato e posizionato in memoria ad ogni chiamata di funzione.
+
+In una funzione ricorsiva molto grande dunque verrano generati una grande quantità di frame che possono impantanare il programma. La soluzione adottara da ocaml è il **tail recursing**, ovvero un metodo che viene applicato dal compilatore per rendere più semplice la gestione della ricorsione senza creare nuovi frame (molto meno tempo e memoria utilizzati)
+
 ## Datatype
-+ ML è fortemente e staticamente tippato 
-+ Il tipo di ogni istruzione è inferito dall'uso
+ML è fortemente e staticamente tippato e il tipo di ogni istruzione è inferito dall'uso
++ **Fortemente** --> se dichiaro intero allora qualsiasi cosa che inserisco che non sia intero darà errore
++ **Staticamente** --> lo fa compile time
+
 Dato che è fortemete tippato non posso avere problemi sui tipi.
 ```exe
 # 1+2*3;;
@@ -143,7 +163,7 @@ Error: This expression has type float but an expression was expected of type int
 # let pi = 4.0 *. atan 1.0;;
 val pi : float = 3.14159265358979312
 ```
-*Aggiungo il punto per operazioni con i float*.
++ Poichè non è presente la coercion, ho un simbolo diverso per ogni operazione con tipi di dato differente (int\*int, float\*float, int\*float). *Ad esempio aggiungo il punto per operazioni con i float*.
 
 ### Operatori
 + Costanti: true , false
@@ -160,9 +180,9 @@ val pi : float = 3.14159265358979312
 - : bool = false
 ```
 ### Stringhe
-+ Native in OCaML
+Le stringhe sono native in OCaML e sono immutabili se non attraverso la trasformaizone in byte e l'uso della funzione set
 + Concatenation operator ^
-+ Positional access [n]
++ Positional access .[n]
 + Esiste un modulo **String** con degli operatori
 ```exe
 let s1 = "walter" and s2 = "cazzola" ;;
@@ -182,9 +202,9 @@ val b : bytes = Bytes.of_string "walter cazzola"
 val s : string = "Walter Cazzola"
 ```
 ### List
-+ Omogenee
-+ Operetor ::
-+ Concatenation operator @ *(inefficente)*
+Le liste sono sequenze di elementi omogenei con un proprio costruttore *(chiamato con ::)* pensate per farci pattern matching sopra.
++ Concatenation operator @ *(inefficente, conviene fare un aggiunta in testa e poi invertire la lista)*
++ create con le parentesi quadre[]
 + Esiste un modulo **List** con degli operatori
 ```exe
 # [1; 1+1; 3];;
@@ -241,6 +261,8 @@ in slice 0 [] l ;;
 
 ## Tuples
 Liste di tipi eterogenei con lunghezza fissata. Sono più efficenti di una lista.
++ create con le parentesi tonde()
++ l'accesso avviene con il pattern matching
 ```exe
 # let a_tuple = (5, 'a', "a string", [1; 2; 3], 3.14);;
 val a_tuple : int * char * string * int list * float =
@@ -259,6 +281,8 @@ but an expression was expected of type 'a * 'b
 ```
 ## Arrays
 Liste di tipi omogenei con acesso diretto tramite indice.
++ create con [|1;3;4|]
++ Selezione con .(indice), assegnazione con .(indice) <- valore
 ```exe
 # let an_array = [|1;2;3|];;
 val an_array : int array = [|1; 2; 3|]
@@ -283,10 +307,10 @@ val a_matrix : char array array = [|[|'a'; 'a'; 'a'|]; [|'a'; 'a'; 'a'|]|]
 - : char array array = [|[|'a'; 'a'; 'a'|]; [|'a'; 'a'; 'z'|]|]
 ```
 ## Record
-Simile alle strutture di c e go
+Sono coppie chiave valore, nativamente immutabili ma permettono di aggiungere mutable alle singole coppie per rendere quella coppia mutabile.
 + Accessibile con un nome
 + Eterogene
-+ Mutabili *(mutable keyword)*
++ Creo un record usando type per definirlo come nuovo tipo
 ```exe
 # type person = {name: string; mutable age: int};;
 type person = { name : string; mutable age : int; }
