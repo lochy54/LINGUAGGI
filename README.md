@@ -363,12 +363,16 @@ Joker -> 0
 | Card {name = Simple n} -> n ;;
 ```
 ## Moduli
-Perche distinguere funzioni astratte e funzioni concrete? Perchè permette di avere più modi diversi di implementare un concetto in base a ciò che ci serve. In ocaml si usano i **moduli**. 
-Essi sono composti da due parti:
-+ una parte pubblica opzionale che espone tipi ed operatori da definire nel modulo chiamata signature (è la parte astratta del modulo) (sig . . . end);
-+ una parte di cui implementiamo il modulo chiamata struct (è la parte concreta) (struct . . . end).
+I moduli sono utilizzati per realizzare dei datatype e collezzioni di funzioni.
+Sono composti da:
++ Una parte pubblica opzionale che espone tipi ed operatori da definire nel modulo chiamata signature (è la parte astratta del modulo) (sig . . . end);
++ Una parte di cui implementiamo il modulo chiamata struct (è la parte concreta) (struct . . . end).
 
-I moduli permetto anche di astrarre dei dati e nasconderne l'implementazione
+I modiuli possono essere astratti e quindi nascondere dettagli implementativi.
+
+### Perche distinguere funzioni astratte e funzioni concrete? 
+Perchè permette di avere più modi diversi di implementare un concetto in base a ciò che ci serve.
+
 ```ml
 module A :
 sig
@@ -378,9 +382,9 @@ struct
 ...
 end ;;
 ```
-I modulei sono anche molto utili per organizzare granid implementazioni suddividendo il codice in piccoli pezzi che si uatp contengono l'un l'altro.
+I moduli sono anche molto utili per organizzare grandi implementazioni suddividendo il codice in piccoli pezzi.
 
-# Esempio di struttura di un modulo
+### Esempio di struttura di un modulo
 ```ml
 module PrioQueue =
   struct
@@ -430,7 +434,7 @@ val extract : char_queue -> priority * char * char_queue
 end
 # let pq = empty ;;
 val pq : PrioQueue.char_queue = Empty
-# let pq = insert pq 0 'a' ;;
+# ♠let pq = insert pq 0 'a' ;;
 val pq : PrioQueue.char_queue = Node (0, 'a', Empty, Empty)
 # let pq = insert (insert pq 3 'c') (-7) 'w';;
 val pq : PrioQueue.char_queue =
@@ -439,4 +443,52 @@ Node (-7, 'w', Node (0, 'a', Empty, Empty), Node (3, 'c', Empty, Empty))
 val pq : PrioQueue.priority * char * PrioQueue.char_queue =
 (-7, 'w', Node (0, 'a', Empty, Node (3, 'c', Empty, Empty)))
 ```
+L'inrefaccia di un modulo può essere compilata separatamente
+## Functors
+I Functors sono funzioni da strutture a strutture, questo significa che:
++ la firma delle strutture di i/o sono fissate
++ I dettagli implementativi possono variare senza incidere su alcun modulo che lo usa
 
+Le funzioni permettono di non avere dupicati e aumentata Ortogonalità dentro un **type safe** pakege
+### Esempio implementativo 
+is_balanced() controlla che una stringa abbia le parentesi bilanciate.
+```ml
+let is_balanced str =
+let s = Stack.empty in try
+String.iter
+(fun c -> match c with
+'(' -> Stack.push s c
+| ')' -> Stack.pop s
+| _ -> ()) str;
+Stack.is_empty s
+with Stack.EmptyStackException -> false
+```
+### Modulo
+```ml
+module type StackADT =
+sig
+type char_stack
+exception EmptyStackException
+val empty : char_stack
+val push : char_stack -> char -> unit
+val top : char_stack -> char
+val pop : char_stack -> unit
+val i
+```
+Se lalgoritmo fenisce con uno stack vuoto io ho una stringa bilanciata.
+### Matcher factor
+Il Matcher è un factor che collega il nostro algoritmo a uno stack di tipo di dato astratto
+```ml
+module Matcher (Stack : StackADT.StackADT) =
+struct
+let is_balanced str =
+let s = Stack.empty in try
+String.iter
+(fun c -> match c with
+'(' -> Stack.push s c
+| ')' -> Stack.pop s
+| _ -> ()) str;
+Stack.is_empty s
+with Stack.EmptyStackException -> false
+end
+```
