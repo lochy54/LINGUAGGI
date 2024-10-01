@@ -11,6 +11,7 @@ let foo' = foo * 2 ;;
 *)
 let inc_int (x: int) : int = x + 1 ;;
 let inc_int' x = x+1;;
+let inc_int'' = function x -> x+1;;
 
 (* Per fare funzioni ricorsive devo definirle attraverso la "rec" keyword. *)
 let rec factorial n = if n = 0 then 1 else n * factorial (n-1) ;;

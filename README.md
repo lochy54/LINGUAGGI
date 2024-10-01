@@ -1,6 +1,9 @@
 # ORGANIZZAZIONE
 **Fate le vostre cartelle per gli esercizi.**
 
+lp
+#2011#+LP
+
 Gruppo:
 + [Luca Carone Polettini](https://github.com/lochy54)
 + [Bea Oldrati](https://github.com/Bea-Oldr)
@@ -359,3 +362,81 @@ Joker -> 0
 | Card {name = Jack} -> 8
 | Card {name = Simple n} -> n ;;
 ```
+## Moduli
+Perche distinguere funzioni astratte e funzioni concrete? Perchè permette di avere più modi diversi di implementare un concetto in base a ciò che ci serve. In ocaml si usano i **moduli**. 
+Essi sono composti da due parti:
++ una parte pubblica opzionale che espone tipi ed operatori da definire nel modulo chiamata signature (è la parte astratta del modulo) (sig . . . end);
++ una parte di cui implementiamo il modulo chiamata struct (è la parte concreta) (struct . . . end).
+
+I moduli permetto anche di astrarre dei dati e nasconderne l'implementazione
+```ml
+module A :
+sig
+...
+end =
+struct
+...
+end ;;
+```
+I modulei sono anche molto utili per organizzare granid implementazioni suddividendo il codice in piccoli pezzi che si uatp contengono l'un l'altro.
+
+# Esempio di struttura di un modulo
+```ml
+module PrioQueue =
+  struct
+    type priority = int
+    type char_queue = Empty | Node of priority * char * char_queue * char_queue
+    exception QueueIsEmpty
+
+    let empty = Empty
+
+    let rec insert queue prio elt =
+      match queue with
+      Empty -> Node(prio, elt, Empty, Empty)
+      | Node(p, e, left, right) ->
+        if prio <= p
+        then Node(prio, elt, insert right p e, left)
+        else Node(p, e, insert right prio elt, left)
+    
+    let rec remove_top = function
+      Empty -> raise QueueIsEmpty
+      | Node(prio, elt, left, Empty) -> left
+      | Node(prio, elt, Empty, right) -> right
+      | Node(prio, elt, (Node(lprio, lelt, _, _) as left),
+      (Node(rprio, relt, _, _) as right)) ->
+        if lprio <= rprio
+        then Node(lprio, lelt, remove_top left, right)
+        else Node(rprio, relt, left, remove_top right)
+    
+    let extract = function
+      Empty -> raise QueueIsEmpty
+      |Node(prio, elt, _, _) as queue -> (prio, elt, remove_top queue)
+  end;;
+```
+
+```exe
+# #use "char_pqueue.ml" ;;
+module PrioQueue :
+sig
+type priority = int
+type char_queue =
+Empty
+| Node of priority * char * char_queue * char_queue
+exception QueueIsEmpty
+val empty : char_queue
+val insert : char_queue -> priority -> char -> char_queue
+val remove_top : char_queue -> char_queue
+val extract : char_queue -> priority * char * char_queue
+end
+# let pq = empty ;;
+val pq : PrioQueue.char_queue = Empty
+# let pq = insert pq 0 'a' ;;
+val pq : PrioQueue.char_queue = Node (0, 'a', Empty, Empty)
+# let pq = insert (insert pq 3 'c') (-7) 'w';;
+val pq : PrioQueue.char_queue =
+Node (-7, 'w', Node (0, 'a', Empty, Empty), Node (3, 'c', Empty, Empty))
+# let pq = extract pq;;
+val pq : PrioQueue.priority * char * PrioQueue.char_queue =
+(-7, 'w', Node (0, 'a', Empty, Node (3, 'c', Empty, Empty)))
+```
+

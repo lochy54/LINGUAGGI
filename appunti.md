@@ -30,3 +30,13 @@ Si possono fare array innestati
 + record --> sono coppie chiave valore, nativamente immutabili ma permettono di aggiungere mutable alle singole coppie per rendere quella coppia mutabile. SOno eterogenei. Creo un record usando type per definirlo come nuovo tipo
 
 + Aliasing e varinat
+
+## Lezione 3
+Perche distinguere? Perchè permette di avere più modi diversi di implementare un concetto in base a ciò che ci serve. In ocaml si usano i moduli e sono comporsti d due èarti: 
+    uan parte pubblica oopzionelae che espone tipi ed operatori defitni nel modulo chiamata signature (è la parte astratta del modulo)
+    una parte di cui implementiamo il modil0 chiamata struct (è la parte concreta)
+
+Possiamo definire nella struct tipi e funzioni, poi una volta importato il modulo è facile usarlo
+Nella sig invece definiamo che cosa volgiamo in modo sastratto, poi una volta importayta possiamo unirla mediante funxzione specifica alla sua impelementazione
+
+Passiamo ai funtori: sono degli isomorfismi tra le strutture. Servono per evitare delle duplicazioni attraverso delle minime variazioni. L'ide a è quella di superare la differenza tra tipo di dati diversi per usare un modulo
