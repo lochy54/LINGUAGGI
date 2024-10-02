@@ -71,7 +71,7 @@ Se durante l'esecuzione si verificano errori, puoi interrompere il processo con 
 
 Se non hai riscontrato errori durante i passaggi precedenti, tutto dovrebbe essere andato a buon fine.
 
-Ora apri **VSCode** e utilizza il pulsante per il **Remote Development** (sotto le impostazioni) per selezionare WSL come ambiente di lavoro.
+Ora apri **VSCode** e utilizza il pulsante per il **Remote Development** (sotto le impostazioni) *(nota a volte bisogna installare l'estenzsione di VSCode)* per selezionare WSL come ambiente di lavoro.
 
 ## 7. Scelta dell'ambiente WSL
 
@@ -86,3 +86,12 @@ opam
 ```
 
 Se tutto funziona correttamente, potrai iniziare a lavorare con OCaml in VSCode!
+
+## 9. Installa ocaml
+
+Una volata finito tutto esegui il comando 
+```bash
+sudo apt install ocaml
+```
+fattio ciò potrai compilare ed eseguire i tuoi file **.ml**
+
