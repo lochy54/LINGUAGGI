@@ -1,5 +1,5 @@
+# Es 1
 Put into a list, called alkaline_earth_metals, the atomic numbers of the six alkaline earth metals: beryllium (4), magnesium (12), calcium (20), strontium (38), barium (56), and radium (88). Then
-
 Write a function that returns the highest atomic number in alkaline_earth_metals.
 Write a function that sorts alkaline_earth_metals in ascending order (from the lightest to the heaviest).
 
