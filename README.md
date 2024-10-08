@@ -1,20 +1,15 @@
 # ORGANIZZAZIONE
-**Fate le vostre cartelle per gli esercizi.**
-
-lp
-#2011#+LP
-
-Gruppo:
+### Accedere alla pagina del corso
++ username: **lp**
++ password: **#2011#+LP**
+### Gruppo:
 + [Luca Carone Polettini](https://github.com/lochy54)
 + [Bea Oldrati](https://github.com/Bea-Oldr)
 + [Giacomo Guidi](https://github.com/SirFuryy)
-+ [Samuele Scaravaggi](https://github.com/SamScara)
-
-Link Utili:
+### Link Utili:
 + [imparare ocaml in y minuti](https://learnxinyminutes.com/docs/ocaml/)
 + [100 esercizi ottimi per ocaml](https://ocaml.org/exercises)
 + [imparare ocaml in y minuti in greco](https://learnxinyminutes.com/docs/el-gr/ocaml-gr/)
-
 # I LINGUAGGI FUNZIONALI
 ## Cosa è un linguaggio di programmazione funzionale?
 Partiamo dagli altri paradigmi di programmazione: i linguaggi imperativi pongono il loro focus principale sulla sequenezialità e semplicità del codice, mentre i linguaggi di programmazione orientati agli oggetti pongo il loro focus sulla rappresentazione del dato e sulla sua costruzione sotto forma di oggetto (P.S. Java per svecchiarsi sta adottando molti paradigmi funzionali).
