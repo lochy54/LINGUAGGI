@@ -64,6 +64,12 @@ Possono essere usate come valori e passate a funzioni più alte
 let compose f g x = f (g x);;
 let compose' (f, g) x = f (g x);;
 ```
+
+## Parole chiave: "in" e "and"
+In ocaml sono presenti due parole chiave molto potenti:
++ "in" permette di definire consecutivamente più funzioni o ridenominazioni di funzioni/valori/costanti che verranno poi usate con quel nome nelle funzioni dalla più esterna alla più interna. Permette di identare meglio le chiamate annidate e di definire non esternamente tali funzioni.
++ "and" permette la dichiarazione multipla di funzioni senza dover utilizzare let e senza dover usare il costrutto in
+
 ## Il pattern matching
 Il pattern matching è un metodo per confrontare un elemento con un possibile pattern e restituire un risultato.I pattern possono contenere:
 + Un **catchall pattern** che confronta tutti i valori *(_)*.
@@ -130,6 +136,13 @@ Poichè non è presente la **coercion**, ho un simbolo diverso per ogni operazio
 + Costanti: `true` , `false`
 + Operatori razzionali: `==`, `<>`, `< >`, `<=`, `>=`
 + Operatori logici: `&&`, `||`, `not`
+
+Gli operatori possono anche essere creati manualmente, un po' come avviene su c, andandoli a definire come funzioni che eseguono un determinato calcolo. Essendo tutto una funzione in questo paradigma, esso è ampiamente fattibile
+```ml
+let (>:) a b = (snd a) - (snd b);;
+let max a b = if (a >: b >= 0) then a else b
+```
+Come funziona? Definisco un nuovo operatore infisso, ovvero che vuole un valore posto davanti e uno posto dietro, inserendolo all'interno delle parentesi per identificarlo come operatore. A lui assegno una funzione, che userà dunque i parametri richiesti. Per chiamarlo non basterà altro che porlo al centro dei due parametri che vogliamo passargli, come nella seconda riga 
 
 ### Stringhe
 Le stringhe sono native in OCaML e sono immutabili se non attraverso la trasformaizone in `byte` e l'uso della funzione set.

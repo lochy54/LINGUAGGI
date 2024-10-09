@@ -54,3 +54,34 @@ tipologie
 in ocamlnon c'è type binding
 
 esiste un tipo, non so wuale sia, ma appena ce n'è uno diventamio --> weaked type. Non posso cambiarlo una volta identificato
+
+## Lezione 5
+capire map, filter e reduce
+capire pattern matching strutturale 
+....
+reduce si chiama fold e nasconde un problema: biogna scegliere il giusto operatore, poichè potrebbero facilemtne esserci operatori non commutativi o associativi (problemi legati alle algebre matematiche) --> pensare bene a come fare la fold [left/right]
+Quest si propaga anche alla reduce
+
+quando abbiamo un parametro opzionale, esso assume un valore di default, non con l'ultima istanza avuta (questo possiamo suppore succeda quando non lo mettiamo (essendo opzionale))
+
+.((f h)) perchè? perchè .() esterno serve a puntare una posizione dell'array, le parentesi () interne servono per chiudere l'associatività dei parametri e calcolare l'intero
+
+funzione con numero vaariabile di argomenti
+definisco funzione arg
+
+Le astrazioni vogliono solo tipi astratti, non tipi generici
+
+
+### Parole chiave: "in" e "and"
+In ocaml sono presenti due parole chiave molto potenti:
++ "in" permette di definire consecutivamente più funzioni o ridenominazioni di funzioni/valori/costanti che verranno poi usate con quel nome nelle funzioni dalla più esterna alla più interna. Permette di identare meglio le chiamate annidate e di definire non esternamente tali funzioni.
++ "and" permette la dichiarazione multipla di funzioni senza dover utilizzare let e senza dover usare il costrutto in
+
+
+
+Gli operatori possono anche essere creati manualmente, un po' come avviene su c, andandoli a definire come funzioni che eseguono un determinato calcolo. Essendo tutto una funzione in questo paradigma, esso è ampiamente fattibile
+```ml
+let (>:) a b = (snd a) - (snd b);;
+let max a b = if (a >: b >= 0) then a else b
+```
+Come funziona? Definisco un nuovo operatore infisso, ovvero che vuole un valore posto davanti e uno posto dietro, inserendolo all'interno delle parentesi per identificarlo come operatore. A lui assegno una funzione, che userà dunque i parametri richiesti. Per chiamarlo non basterà altro che porlo al centro dei due parametri che vogliamo passargli, come nella seconda riga 
