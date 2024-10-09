@@ -40,3 +40,17 @@ Possiamo definire nella struct tipi e funzioni, poi una volta importato il modul
 Nella sig invece definiamo che cosa volgiamo in modo sastratto, poi una volta importayta possiamo unirla mediante funxzione specifica alla sua impelementazione
 
 Passiamo ai funtori: sono degli isomorfismi tra le strutture. Servono per evitare delle duplicazioni attraverso delle minime variazioni. L'ide a è quella di superare la differenza tra tipo di dati diversi per usare un modulo
+
+
+## Lezione 4
+Polimorfismo --> andiamo a defeinite da un type cn un interfaccia uniforme ed indipendente dal datatype che puo essere usata su tipi differenti
+tipi generici che divenartno polimorfi (eterogeneo)
+ocaml lo supporta nativamente
+tipologie 
++ ad hoc, cambiano i tipi degli argomenti di ba funzione, cambia la composizione, stesso onme, stesso aspetto, diversa implementazuoone. Si trasforma un overloading
++ paremtrico, non specifichiamio i tipi, codice usato in maniera trasparente. paradigmi funzionali o orientati agli oggetti (generici)
++ per sottotipo gerarchia di oggetti che sono collegati da inerithance in java sono classi figlie, oppure cge implemenetayo i neterfaccie
+
+in ocamlnon c'è type binding
+
+esiste un tipo, non so wuale sia, ma appena ce n'è uno diventamio --> weaked type. Non posso cambiarlo una volta identificato

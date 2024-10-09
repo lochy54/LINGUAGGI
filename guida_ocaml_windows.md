@@ -67,6 +67,14 @@ opam install ocaml-lsp-server odoc ocamlformat utop
 
 Se durante l'esecuzione si verificano errori, puoi interrompere il processo con `ctrl+c` e ripetere il comando.
 
+## 6. Installare ocamlc
+
+Per installare ocamlc, obbligatorio per buildare, affianco alla directory opam dove avete installato opam, runnate
+```bash
+sudo apt install ocaml
+```
+Ora potete runnare ocamlc
+
 ## 6. Configurare VSCode
 
 Se non hai riscontrato errori durante i passaggi precedenti, tutto dovrebbe essere andato a buon fine.
