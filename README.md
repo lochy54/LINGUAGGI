@@ -421,7 +421,7 @@ let l = [1.;2.;3.;4.;5.] ;;
 List.fold_right (/.) l 1. ;;
 List.fold_left (/.) 1. l ;;
 ```
-## Funzioni con Numero Variabile di Argomenti  //arrivato qui
+## Funzioni con Numero Variabile di Argomenti
  Implementazione di base che permette di accumulare i valori passati come argomenti utilizzando una funzione chiamata arg che accetta due valori e una funzione finale che elabora il risultato:
  ```ml
 let arg x = fun y rest -> rest (op x y) ;;
@@ -430,7 +430,7 @@ let f g = g init;;
  ```
 Questa struttura è flessibile e permette di eseguire operazioni in modo iterativo:
 ```ml
-f (arg 1) (arg 2) (arg 7) stop;;  (* Restituisce: [1; 2; 7] *)
+f (arg 1) (arg 2) (arg 7) stop;;
 ```
 ### Utilizzo di Functor per la Generalizzazione
 Per superare le limitazioni della definizione di funzioni con argomenti variabili, viene introdotto un functor, che permette di creare moduli flessibili e riutilizzabili per diverse operazioni.
@@ -451,4 +451,12 @@ let f g = g OP.init;;
 end
 ```
 ### Problema
-Un tipo generico come 'a list non può corrispondere alla firma OpVarADT perché nessuno dei tipi è definito come parametrico:
+Un tipo generico come 'a list non può corrispondere alla firma OpVarADT perché nessuno dei tipi è definito come parametrico.
+### Soluzione Astrazione
+```ml
+module ListConcat = struct
+type a and b = a list and c = a list
+let op = fun (x: a) y -> y @ [x] ;;
+let ini
+```
+Facendo così ritorno una struttura e non un tipo.
