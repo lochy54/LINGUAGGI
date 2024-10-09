@@ -256,82 +256,186 @@ module PrioQueue =
 
 L'inrefaccia di un modulo può essere compilata separatamente
 ## Functors
-I Functors sono funzioni da strutture a strutture, questo significa che:
-+ la firma delle strutture di i/o sono fissate
-+ I dettagli implementativi possono variare senza incidere su alcun modulo che lo usa
+I **Functors** in OCaml sono funzioni che operano su moduli e producono altri moduli. In altre parole, un Functor è una funzione da una struttura di dati a un'altra. Questo significa che:
++ La firma delle strutture di input e output è fissata.
++ I dettagli implementativi possono variare senza influire sui moduli che li utilizzano.
 
-Le funzioni permettono di non avere dupicati e aumentata Ortogonalità dentro un **type safe** pakege
-### Esempio implementativo 
-is_balanced() controlla che una stringa abbia le parentesi bilanciate.
+I Functors consentono di evitare la duplicazione del codice e migliorano l'ortogonalità all'interno di un pacchetto **type-safe**.
+
+### Esempio implementativo
+Supponiamo di voler implementare una funzione `is_balanced()` che controlli se una stringa ha parentesi bilanciate:
 ```ml
 let is_balanced str =
-let s = Stack.empty in try
-String.iter
-(fun c -> match c with
-'(' -> Stack.push s c
-| ')' -> Stack.pop s
-| _ -> ()) str;
-Stack.is_empty s
-with Stack.EmptyStackException -> false
+  let s = Stack.empty in
+  try
+    String.iter
+      (fun c -> match c with
+         | '(' -> Stack.push s c
+         | ')' -> Stack.pop s
+         | _ -> ()) str;
+    Stack.is_empty s
+  with Stack.EmptyStackException -> false
 ```
-### Modulo
+### Modulo di Stack
+Definiamo un modulo che descriva la struttura di uno stack, che useremo con il nostro algoritmo:
 ```ml
 module type StackADT =
 sig
-type char_stack
-exception EmptyStackException
-val empty : char_stack
-val push : char_stack -> char -> unit
-val top : char_stack -> char
-val pop : char_stack -> unit
-val i
-```
-Se lalgoritmo fenisce con uno stack vuoto io ho una stringa bilanciata.
-### Matcher factor
-Il Matcher è un factor che collega il nostro algoritmo a uno stack di tipo di dato astratto
-```ml
-module Matcher (Stack : StackADT.StackADT) =
-struct
-let is_balanced str =
-let s = Stack.empty in try
-String.iter
-(fun c -> match c with
-'(' -> Stack.push s c
-| ')' -> Stack.pop s
-| _ -> ()) str;
-Stack.is_empty s
-with Stack.EmptyStackException -> false
+  type char_stack
+  exception EmptyStackException
+  val empty : char_stack
+  val push : char_stack -> char -> unit
+  val top : char_stack -> char
+  val pop : char_stack -> unit
+  val is_empty : char_stack -> bool
 end
 ```
+In questo modulo, se l'algoritmo termina con uno stack vuoto, allora la stringa è bilanciata.
+### Matcher factor
+Il Matcher collega il nostro algoritmo a uno stack astratto di tipo dato:
+
+```ml
+module Matcher (Stack : StackADT) =
+struct
+  let is_balanced str =
+    let s = Stack.empty in
+    try
+      String.iter
+        (fun c -> match c with
+           | '(' -> Stack.push s c
+           | ')' -> Stack.pop s
+           | _ -> ()) str;
+      Stack.is_empty s
+    with Stack.EmptyStackException -> false
+end
+```
+Questo **Functor Matcher** permette di utilizzare qualsiasi implementazione dello stack purché segua la struttura definita in `StackADT`.
 ## Polymorphism in ML
-Permette di usare valori di datatype diversi attraverso un interfaccia uniforme, contiene:
-+ Una funzione che permette di essere lancitata su più datatype
-+ Un datatype generalizzato 
+Il polimorfismo consente di scrivere funzioni e strutture dati generiche che possono operare su diversi tipi di dato utilizzando un'interfaccia comune.
+### Esistono diversi tipi di polimorfismo
+
++ **Polimorfismo parametrico**: Consente di scrivere funzioni senza menzionare specificamente alcun tipo di dato.
 ```ml
 let compose f g x = f (g x);;
 ```
-### Hoc Polymorphism
-+ Le funzioni hanno diverse implementazioni che dipendono dalla quantità di datatype e la loro combinazione
-+ Esempio  **overloading**
-### Parametric Polymorphism
-+ Tutto il codice è scritto senza menzionare nessun datatype
-### Subtype Polymorphism
-+ Le funzionio usano in insieme ristretto di sottotipi usabili
-+ Un caso particolare di parametric polymorphism
+Questo significa che la funzione può operare su qualsiasi tipo, purché i tipi si adattino.
 
-### OCaML supporta parametric polymorphism
-Implementa funzioni senza type binding
-$$
-(\alpha \rightarrow \beta) \times (\theta \rightarrow \alpha) \times \theta \rightarrow \beta
-$$
-Il tipo è ristretto al tipo di apha e beta.
-```exe
++ **Polimorfismo ad hoc** (Overloading): Le funzioni hanno diverse implementazioni che dipendono dalla combinazione e dal tipo di dati.
++ **Polimorfismo di sottotipo**: Le funzioni possono operare su un insieme ristretto di tipi che appartengono a una gerarchia di sottotipi. È un caso particolare di polimorfismo parametrico.
+
+
+### Polimorfismo parametrico in OCaml
+OCaml supporta pienamente il polimorfismo parametrico, che consente di implementare funzioni generiche senza vincolare esplicitamente i tipi. Un esempio tipico è la funzione `compose`:
+```ml
+let compose f g x = f (g x);;
+```
+### Compose è un weak-typed
+Quando non conosciamo esattamente il tipo di una funzione, questa viene considerata **weakly-typed**. I tipi verranno ristretti alle possibili combinazioni di tipi della funzione e successivamente risolti nel primo tipo disponibile.
+```ml
 # let compose f g x = f (g x);;
 val compose : ('a -> 'b) -> ('c -> 'a) -> 'c -> 'b = <fun>
+
 # let compose' = compose (fun c -> int_of_char c) ;;
 val compose' : ('_a -> char) -> '_a -> int = <fun>
 ```
-Note _ è usato per inizzaializzare i weak-typed
-### Compose è un weak-typed
-Se non sappiamo esattamente quale è il tipo è **weak-typed**.
-Il tipo verà  ristretto alle possibili datatype della funzione e successivamente prenderà il primo tipo disponibile
+In questo esempio, il simbolo `_` viene utilizzato per indicare che il tipo è stato inizializzato come **weakly-typed**, e sarà risolto successivamente quando verrà utilizzato con un tipo specifico.
+
+In una funzione weakly-typed il suo tipo non è completamente definito fino a quando non viene utilizzata. Questo tipo verrà ristretto a seconda dei tipi specifici passati alla funzione durante l'esecuzione.
+Una volata associato un tipo quello sarà permanente.
+## Currying
+Currying è una tecnica utilizzata per trasformare una funzione che prende più argomenti in una serie di funzioni che prendono un singolo argomento. Questo permette di "parzializzare" una funzione, cioè di fornire un argomento alla volta.
+
+$f(x,y)= y/x \rightarrow f(2)= y/2 \rightarrow f(2)(3) = 3/2 $
+Posso scriverlo come 
+$f(x,y)= y/x \rightarrow g(2)= f(2,y)=y/2 \rightarrow g(3) = 3/2 $
+
+In pratica, la funzione viene trasformata in una serie di funzioni che prendono un argomento alla volta.
+```ml
+let f x y = y /. x ;;  (* Definizione di una funzione con due argomenti *)
+let g = f 2. ;;        (* Applicazione parziale della funzione f con x = 2 *)
+```
+### Usando parametri nominali
+In OCaml, possiamo anche definire funzioni utilizzando parametri nominali, che ci permettono di esplicitare i nomi dei parametri quando si chiama la funzione:
+```ml
+let compose ~f ~g x = f (g x) ;;  (* Funzione con parametri nominali *)
+let compose' = compose ~g:(fun x -> x ** 3.) ;;  (* Applicazione parziale *)
+```  
+Il **Currying** è utile quando sappiamo che uno dei parametri della nostra funzione è fissato o quando non abbiamo tutti gli argomenti disponibili contemporaneamente.
+## Pattern Map, filter and reduce
+Pattern sono fondamentale nella programmazione funzionale:
++ Applica una funzione su tutti gli elementi del mio argomento **map**
+```ml
+let rec map f = function
+h::l1 -> f h::map f l1
+| _ -> [];;
+```
+
++ Filtrare degli elementi del mio argomento **filter**
+```ml
+let rec filter p = function
+[] -> []
+| h::l -> if p h then h :: filter p l else filter p l
+```
+
++ Riduce gli elementi ad un singolo valore **reduce**
+```ml
+let rec reduce acc op = function
+[] -> acc
+| h::tl -> reduce (op acc h) op tl ;;
+```
+
+### Altri pattern definiti usando map e reduce
+Possiamo definire altri pattern utili usando `map` e `reduce`, come ad esempio: 
++ **exist**: Ritorna `true` se almeno un elemento della lista soddisfa il predicato.
+```ml
+let exists p l = reduce false (||) (map p l);
+```
++ **forall**: Ritorna `true` se tutti gli elementi della lista soddisfano il predicato.
+```ml
+let forall p l = reduce true (&&) (map p l);;
+```
+## Folding
+Nella programmazione funzionale, il folding è il processo di ridurre una lista (o un'altra struttura di dati) a un singolo valore iterando attraverso di essa e combinando i suoi elementi usando una funzione binaria. Esistono due tipi principali di fold:
++ **Fold sinistro** (fold_left): Questa operazione combina gli elementi da sinistra a destra. Inizia con il primo elemento della lista e lo combina con i risultati della combinazione ricorsiva degli altri elementi. 
+  + $((((((0 + 1) + 2) + 3) + 7) + 25) + 4)$
+
++ **Fold destro** (fold_right): Questa operazione funziona in modo opposto, combinando gli elementi della lista da destra a sinistra. Inizia dall'ultimo elemento della lista e lo combina con i risultati della combinazione ricorsiva degli altri elementi.
+  + $0 + (1 + (2 + (3 + (7 + (25 + 4)))))$
+
+Se una funzione non ha una base matematica il folding lo definisco io con fold_left o fold_right.
+```ml
+let l = [1.;2.;3.;4.;5.] ;;
+List.fold_right (/.) l 1. ;;
+List.fold_left (/.) 1. l ;;
+```
+## Funzioni con Numero Variabile di Argomenti  //arrivato qui
+ Implementazione di base che permette di accumulare i valori passati come argomenti utilizzando una funzione chiamata arg che accetta due valori e una funzione finale che elabora il risultato:
+ ```ml
+let arg x = fun y rest -> rest (op x y) ;;
+let stop x = x;;
+let f g = g init;;
+ ```
+Questa struttura è flessibile e permette di eseguire operazioni in modo iterativo:
+```ml
+f (arg 1) (arg 2) (arg 7) stop;;  (* Restituisce: [1; 2; 7] *)
+```
+### Utilizzo di Functor per la Generalizzazione
+Per superare le limitazioni della definizione di funzioni con argomenti variabili, viene introdotto un functor, che permette di creare moduli flessibili e riutilizzabili per diverse operazioni.
+
+```ml
+module type OpVarADT =
+sig
+type a and b and c
+val op: a -> b -> c
+val init : c
+end
+
+module VarArgs (OP : OpVarADT.OpVarADT) =
+struct
+let arg x = fun y rest -> rest (OP.op x y) ;;
+let stop x = x;;
+let f g = g OP.init;;
+end
+```
+### Problema
+Un tipo generico come 'a list non può corrispondere alla firma OpVarADT perché nessuno dei tipi è definito come parametrico:
