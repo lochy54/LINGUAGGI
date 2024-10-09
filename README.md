@@ -8,23 +8,21 @@
 + [imparare ocaml in y minuti in greco](https://learnxinyminutes.com/docs/el-gr/ocaml-gr/)
 # I LINGUAGGI FUNZIONALI
 ## Cosa è un linguaggio di programmazione funzionale?
-Nei linguaggi di porgrammazione a paradigma funzionale il focus principale è sulle funzioni. In esso infatti le funzioni sono oggetti di prima classe e vengono pensate come funzioni matematiche.
-
-Questa visione delle funzioni in formato matematico va a creare delle funzioni ben definite che non generano side-effect *(importante punto di forza)*.
+Nei linguaggi di programmazione a paradigma funzionale, il focus principale è sulle funzioni. Le funzioni sono considerate oggetti di prima classe e vengono pensate come funzioni matematiche. Questa visione permette di creare funzioni ben definite che non generano effetti collaterali *(side-effects)*, un aspetto cruciale nei linguaggi funzionali puri.
 ### In generale
 + La ricorsione è usata come struttura di controllo primaria. In alcuni linguaggi, non esiste nessun altro costrutto di loop.
 + In questi linguaggi gli stati sono considerati immutabili.
 + I linguaggi funzionali puri evitano gli effetti collaterali, questo scoraggia l'uso di istruzioni a favore delle valutazioni di espressioni.
-## Perchè un liguaggio funzionale?
-+ Codice più veloce
-+ Facile sviluppare e meno soggetto a bug.
-+ Facile dimostrarne le proprietà formali.
+## Perché scegliere un linguaggio funzionale?
++ **Codice più veloce**: Ottimizzato per esecuzione rapida.
++ **Facile sviluppo e debug**: Il codice è meno soggetto a bug.
++ **Dimostrazione delle proprietà formali**: Semplice da verificare grazie alla natura matematica delle funzioni.
 ## Idea di base
-L'idea di base è modellare tutto come se fosse una funzione matematica. Ci sono solo 2 costrutori linguistici:
-+ **astratto** *definire una funzione*
-+ **applicato** *chiamare una funzione*
-## Concetto no state
-+ Nessun assegniamento.
+L'idea centrale è modellare tutto come una funzione matematica. Ci sono solo due costruttori linguistici:
++ **Astrazione**: definire una funzione.
++ **Applicazione**: chiamare una funzione.
+## Concetto di "No State"
++ Non esiste l'assegnazione.
 + Le variabili sono solo nomi.
 
 **ES:** in $f(x) = x + 1$ il nome $f$ è inrilevante e può essere cambiato con $g(x)$.
@@ -67,24 +65,19 @@ let compose f g x = f (g x);;
 let compose' (f, g) x = f (g x);;
 ```
 ## Il pattern matching
-Metodo usato per confrontare un elemento con un possibile pattern e dare un risultato.
-I pattern possono contenere:
-+ costanti, tuple, records, variant constructors e nomi di variabili.
+Il pattern matching è un metodo per confrontare un elemento con un possibile pattern e restituire un risultato.I pattern possono contenere:
 + Un **catchall pattern** che confronta tutti i valori *(_)*.
 + Un **sub-patterns** contenente alternative *(pat1 |pat2)*
-
+```ml
+let invert x =
+  match x with
+  | true -> false
+  | false -> true ;;
+```
 ### Quando ho un matche
 + La corrispondente espressione è ritornata.
 + La *(optional)* clausola **when** fa da "guardia" al maching, filtrando le richieste indesiderate
-```ml
-let invert x =
-match x with
-| true -> false
-| false -> true ;;
-let invert' = function
-true -> false
-| false -> true ;;
-```
+
 In generale nei paradigmi funzionali è sempre meglio usare un pattern matcher rispetto ai costrutti if-else.
 
 ## Funzioni ricorsive
@@ -110,29 +103,28 @@ $
    \end{cases}
    $
 
+Esempio di funzione ricorsiva in OCaml:
+```ml
+let rec fact n = if n <= 1 then 1 else n * fact (n - 1);;
+```
+
 Una chiamata ricorsiva può essere:
 + **Diretta**: una funzione chiama se stessa
 + **Indiretta** una funzione chiama un altra funzione che chiama la funzione principale
-```ml
-let rec fact(n) = if n<=1 then 1 else n*fact(n-1);;
-let main() =
-print_endline("fact( 5) : - "^string_of_int(fact(5)));
-main();;
-```
+
 In generale le funzioni ricorsive sono più facili da comprendere e in alcuni casi ho problemi che sono nativamente ricorsivi.
+### Tail Recursion
 
-Nello specifico invece il **problema principale della ricorsione è la creazione di tanti frame**. Un frame è un oggetto, simile ad un record di JAVA o ad una struct di Go, che contiene dei campi argomento e le indicazioni sui valori di ritorno che viene generato e posizionato in memoria ad ogni chiamata di funzione.
-
-In una funzione ricorsiva molto grande dunque verrano generati una grande quantità di frame che possono impantanare il programma. La soluzione adottara da ocaml è il **tail recursing**, ovvero un metodo che viene applicato dal compilatore per rendere più semplice la gestione della ricorsione senza creare nuovi frame (molto meno tempo e memoria utilizzati).
+Il problema principale della ricorsione è la creazione di molti frame di memoria. La soluzione di OCaml è la tail recursion, che permette di ottimizzare la gestione della ricorsione senza creare nuovi frame.
 
 ## Datatype
-ML è **fortemente** e **staticamente tippato** e il tipo di ogni istruzione è inferito dall'uso.
+ML è **fortemente** e **staticamente tippato** con inferenza di tipo automatica.
 
-+ **Fortemente**  se dichiaro intero allora qualsiasi cosa che inserisco che non sia intero darà errore
-+ **Staticamente** lo fa compile time
++ **Fortemente**  : inserire un tipo errato causa un errore.
++ **Staticamente** : inserire un tipo errato causa un errore.
 
 Dato che è fortemete tippato non posso avere problemi sui tipi.
-Poichè non è presente la coercion, ho un simbolo diverso per ogni operazione con tipi di dato differente.
+Poichè non è presente la **coercion**, ho un simbolo diverso per ogni operazione con tipi di dato differente.
 
 ### Operatori
 + Costanti: `true` , `false`
@@ -140,28 +132,37 @@ Poichè non è presente la coercion, ho un simbolo diverso per ogni operazione c
 + Operatori logici: `&&`, `||`, `not`
 
 ### Stringhe
-Le stringhe sono native in OCaML e sono immutabili se non attraverso la trasformaizone in byte e l'uso della funzione set.
+Le stringhe sono native in OCaML e sono immutabili se non attraverso la trasformaizone in `byte` e l'uso della funzione set.
 + Concatenation operator `^`
 + Positional access `.[n]`
 + Esiste un modulo **String** con degli operatori
-
+```ocaml
+let greeting = "Ciao";;
+```
 ### List
 Le liste sono sequenze di elementi omogenei con un proprio costruttore **(chiamato con `::`)** pensate per farci pattern matching sopra.
 + Concatenation operator `@` *(inefficente, conviene fare un aggiunta in testa e poi invertire la lista)*
 + Create con `[]`
 + Esiste un modulo **List** con degli operatori
-
+```ml
+let my_list = [1; 2; 3];;
+```
 ## Tuples
-Liste di tipi eterogenei con lunghezza fissata. Sono più efficenti di una lista.
+Liste di tipi eterogenei con lunghezza fissa. Sono più efficenti di una lista.
 + Create con `()`
 + L'accesso avviene con il pattern matching
-
+```ml
+let my_tuple = (1, "hello", true);;
+```
 ## Arrays
 Liste di tipi omogenei con acesso diretto tramite indice.
 + create con `[||]`
 + Selezione con `.(indice)`, assegnazione con `.(indice) <- valore`
 + Esiste il modulo **Array** con più operazioni.
-
+```ml
+let my_array = [| 1; 2; 3 |];;
+my_array.(0) <- 10;;
+```
 ## Record
 Sono coppie chiave valore, nativamente immutabili ma che permettono di aggiungere **mutable** alle singole coppie per renderle **mutabile**.
 + Accessibile con un nome
@@ -172,62 +173,54 @@ type person = { name : string; mutable age : int; }
 let p = {name = "Walter"; age = 35} ;;
 ```
 ### Aliasing
-```exe
-# type int_pair = int*int;;
-type int_pair = int * int
-# let a : int_pair = (1,3);;
-val a : int_pair = (1, 3)
-# fst a;;
-- : int = 1
+In OCaml, possiamo creare degli alias per i tipi utilizzando la parola chiave type. Gli alias di tipo sono una forma di abbreviazione che ci permette di dare un nome più descrittivo a tipi esistenti o a combinazioni di tipi, rendendo il codice più leggibile e comprensibile.
+```ml
+type int_pair = int * int;;
 ```
-Qualsiasi tipo può avere un alias.
-### Varianti  // arrivato qui a correggere
-Un tipo variante contiene tutte le possibili variazioni del tipo.
-```exe
-# type int_option = Nothing | AnInteger of int ;;
-type int_option = Nothing | AnInteger of` int
-# Nothing;;
-- : int_option = Nothing
-# AnInteger 7;;
-- : int_option = AnInteger 7
+In questo esempio, stiamo creando un alias di tipo chiamato int_pair per rappresentare una coppia di numeri interi.
+
+
+
+
+### Varianti
+Un **tipo variante** è un tipo che può contenere diverse varianti, ognuna delle quali può avere una struttura differente. Questo tipo è molto utile per definire insiemi di valori con proprietà diverse.
+```ocaml
+type int_option = Nothing | AnInteger of int ;;
 ```
-Possono essere usate nel Pattern Macching
+In questo esempio, `int_option` è un tipo variante che può assumere due valori:
+
++ Nothing che rappresenta l'assenza di un valore.
++ AnInteger of int che rappresenta un intero.
+
+### Utilizzo nel Pattern Matching
 ```ml
 type card = Card of regular | Joker
 and regular = { suit : card_suit; name : card_name; }
 and card_suit = Heart | Club | Spade | Diamond
 and card_name = Ace | King | Queen | Jack | Simple of int;;
+
 let value = function
-Joker -> 0
-| Card {name = Ace} -> 11
-| Card {name = King} -> 10
-| Card {name = Queen} -> 9
-| Card {name = Jack} -> 8
-| Card {name = Simple n} -> n ;;
+  | Joker -> 0
+  | Card {name = Ace} -> 11
+  | Card {name = King} -> 10
+  | Card {name = Queen} -> 9
+  | Card {name = Jack} -> 8
+  | Card {name = Simple n} -> n;;
 ```
 ## Moduli
-I moduli sono utilizzati per realizzare dei datatype e collezzioni di funzioni.
-Sono composti da:
-+ Una parte pubblica opzionale che espone tipi ed operatori da definire nel modulo chiamata signature (è la parte astratta del modulo) (sig . . . end);
-+ Una parte di cui implementiamo il modulo chiamata struct (è la parte concreta) (struct . . . end).
+I **moduli** in OCaml sono utilizzati per creare datatype e collezioni di funzioni, aiutando a strutturare e organizzare il codice. Sono composti da due parti principali:
 
-I modiuli possono essere astratti e quindi nascondere dettagli implementativi.
+1. **Signature**: la parte astratta del modulo, che espone tipi e operatori. Questa sezione descrive cosa è disponibile pubblicamente, ma non come è implementato.
+   - Sintassi: `sig ... end`
+   
+2. **Struct**: la parte concreta del modulo, che contiene l'implementazione effettiva del codice.
+   - Sintassi: `struct ... end`
 
-### Perche distinguere funzioni astratte e funzioni concrete? 
-Perchè permette di avere più modi diversi di implementare un concetto in base a ciò che ci serve.
+I moduli possono essere astratti per nascondere i dettagli implementativi e mantenere un'interfaccia pulita e facile da usare.
+### Perché distinguere funzioni astratte e funzioni concrete?
+Separare le funzioni astratte dalle concrete permette di avere diverse implementazioni per uno stesso concetto, consentendo di scegliere quella più adatta alle proprie esigenze senza cambiare l'interfaccia esterna.
+Questa separazione è utile anche per organizzare grandi implementazioni suddividendo il codice in piccoli moduli facilmente gestibili.
 
-```ml
-module A :
-sig
-...
-end =
-struct
-...
-end ;;
-```
-I moduli sono anche molto utili per organizzare grandi implementazioni suddividendo il codice in piccoli pezzi.
-
-### Esempio di struttura di un modulo
 ```ml
 module PrioQueue =
   struct
@@ -261,31 +254,6 @@ module PrioQueue =
   end;;
 ```
 
-```exe
-# #use "char_pqueue.ml" ;;
-module PrioQueue :
-sig
-type priority = int
-type char_queue =
-Empty
-| Node of priority * char * char_queue * char_queue
-exception QueueIsEmpty
-val empty : char_queue
-val insert : char_queue -> priority -> char -> char_queue
-val remove_top : char_queue -> char_queue
-val extract : char_queue -> priority * char * char_queue
-end
-# let pq = empty ;;
-val pq : PrioQueue.char_queue = Empty
-# ♠let pq = insert pq 0 'a' ;;
-val pq : PrioQueue.char_queue = Node (0, 'a', Empty, Empty)
-# let pq = insert (insert pq 3 'c') (-7) 'w';;
-val pq : PrioQueue.char_queue =
-Node (-7, 'w', Node (0, 'a', Empty, Empty), Node (3, 'c', Empty, Empty))
-# let pq = extract pq;;
-val pq : PrioQueue.priority * char * PrioQueue.char_queue =
-(-7, 'w', Node (0, 'a', Empty, Node (3, 'c', Empty, Empty)))
-```
 L'inrefaccia di un modulo può essere compilata separatamente
 ## Functors
 I Functors sono funzioni da strutture a strutture, questo significa che:
