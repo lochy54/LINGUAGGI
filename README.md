@@ -460,3 +460,98 @@ let op = fun (x: a) y -> y @ [x] ;;
 let ini
 ```
 Facendo così ritorno una struttura e non un tipo.
+
+# Erlang
+Erlang nasce nel 1987 presso il laboratorio CS di Ericsson, con l'obiettivo di trovare un paradigma adatto alle telecomunicazioni.
+- Erlang è orientato alla concorrenza e utilizza il modello ad attori, con scambio di messaggi asincroni e memoria non condivisa. L'idea è che siamo tutti in grado di mandare e ricevere messaggi asincroni , il modello più simile è quello della posta elettronica.
+
+- Erlang è un linguaggio funzionale, dinamicamente tipizzato, che supporta:
+  - distribution
+  - fault tolerance 
+  - hot-swapping
+
+- Perchè funzinale $ \rightarrow $ perchè non ha stato, se io scorro tutte le instruzioni arrivo sempre allo stesso stato.
+## Primo Esempio
+```erl
+-module(fact).
+-export([fact/1]).
+fact(0) -> 1;
+fact(N) -> N*fact(N-1).
+```
+Una volta che un modulo è compilato con **"c"** sarà dentro la vm di erlang e sarà utilizzabile.
+In alternativa posso generare uno script tramite **hipe**.
+La sezione **Programmazione Sequenziale in Erlang** descrive come utilizzare il linguaggio per creare programmi lineari e gestire dati, variabili, funzioni, e altro ancora. Di seguito una spiegazione più dettagliata con ulteriori informazioni:
+
+## **Tipi di Dati**
+Erlang supporta diversi tipi di dati fondamentali:
+
+- **Numeri**: possono essere interi (ad es., `10`, `16#FF` per un numero in base 16) o numeri in virgola mobile (`-12.35e-2`).
+- **Atomi**: simili alle costanti, iniziano con una lettera minuscola (`hello`, `true`) o possono essere racchiusi tra apici (`'Nome'`). Gli atomi rappresentano valori simbolici.
+- **Tuple**: strutture che memorizzano un numero fisso di elementi. Ad esempio, `{123, "walter", cazzola}` è una tupla contenente tre elementi di tipi diversi.
+  - Le tuple fanno confrotti strutturali.
+
+      ```erlang
+      {{1, 2}, 3}=={1, {2, 3}}.
+      false
+      ```
+- **Liste**: collezioni dinamiche di elementi. Ad esempio, `[1, 2, 3]` o `["ciao", 10, true]`. Le liste possono crescere o ridursi durante l'esecuzione del programma.
+
+## **Assegnazioni e Pattern Matching**
+In Erlang, le assegnazioni non sono variabili mutevoli ma **associazioni** di nomi a valori:
+
+- **Assegnazione**: `A = 10` associa il valore `10` alla variabile `A`. Una volta assegnata, `A` non può essere riassegnata a un valore diverso.
+- **Pattern Matching**: tecnica centrale in Erlang per associare valori a variabili in base a uno schema. Ad esempio, `[H|T] = [1, 2, 3]` associa `1` a `H` (la testa della lista) e `[2, 3]` a `T` (la coda della lista). Il pattern matching può essere utilizzato anche per confrontare strutture complesse, come tuple.
+
+## **Funzioni e Moduli**
+Erlang utilizza un modello modulare per organizzare il codice. Un modulo è un contenitore di funzioni:
+```erlang
+-module(ex_module).
+-export([double/1]).
+double(X) -> double(X, 2).
+double(X, N) -> X * N.
+```
+- double/1 può essere chiamata da fuori modulo
+- double/2 è locale
+
+### Definizione di funzioni
+ si utilizzano pattern per i parametri, e ogni funzione può avere più clausole definite attraverso il pattern matching. Le clausole vengono esaminate sequenzialmente fino a trovare una corrispondenza. Ad esempio:
+  
+  ```erlang
+  -module(fact).
+  -export([fact/1]).
+
+  fact(0) -> 1;
+  fact(N) -> N * fact(N - 1).
+  ```
+
+  In questo esempio, `fact/1` è una funzione ricorsiva per calcolare il fattoriale di un numero.
+
+### Guardie
+Una clausola può essere ulteriormente limitata con condizioni (guardie). Ad esempio, una funzione può avere:
+  
+  ```erlang
+  is_even(N) when N rem 2 == 0 -> true;
+  is_even(_) -> false.
+  ```
+
+  Qui, `when N rem 2 == 0` è una guardia che verifica se `N` è pari.
+
+Gli operatori cortocircuitali (lazy evaluation) vanno specificati : `andalso` `orelse`.
+
+###   Comprensioni di Liste
+Erlang offre le **list comprehensions** per creare liste in modo compatto utilizzando generatori e filtri:
+
+- La sintassi base è `[Espressione || Qualificatore1, ..., Qualificatoren]`.
+- I qualificatori possono essere **generatori** (`Pattern <- Lista`) o **filtri** (condizioni booleane).
+
+Ad esempio, per filtrare numeri primi:
+  
+```erlang
+primes(N) when N > 1 -> [X || X <- lists:seq(2, N), 
+                            (length([Y || Y <- lists:seq(2, trunc(math:sqrt(X))), 
+                            ((X rem Y) == 0)]) == 0)];
+primes(_) -> [].
+```
+
+In questo caso, si genera una lista di numeri primi fino a `N`.
+
