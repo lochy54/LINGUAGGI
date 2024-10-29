@@ -555,3 +555,123 @@ primes(_) -> [].
 
 In questo caso, si genera una lista di numeri primi fino a `N`.
 
+## Thread
+Il programma è suddiviso in task che vengono eseguite contemporaneamente. Queste task operano su una memoria condivisa, il che può causare diversi problemi:
+- **Race condition con perdita di aggiornamenti**: ad esempio, se due thread tentano di eseguire un'operazione sul bilancio di un conto simultaneamente, può verificarsi una situazione di race condition.
+- **Deadlock**: può accadere quando due processi cercano di bloccare risorse in un ordine opposto, bloccandosi a vicenda.
+
+Erlang (e anche Scala tramite la libreria Akka) adotta un approccio diverso alla concorrenza: il **Modello Actor**.
+## Modello Actor
+Nel modello Actor, ogni oggetto è un **attore**:
+
+- Dispone di una **mailbox** per l'invio e la recezione di messaggi.
+- Possiede un **comportamento** specifico.
+- Gli attori comunicano tra loro esclusivamente tramite **messaggi**.
+
+Quando un attore riceve un messaggio, può svolgere diverse azioni:
+1. **Inviare messaggi** ad altri attori.
+2. **Creare nuovi attori** per distribuire il lavoro.
+3. **Modificare il proprio comportamento** per gestire diversamente i successivi messaggi che arriveranno nella mailbox.
+
+### Alcuni aspetti chiave del modello Actor:
+- Tutte le comunicazioni sono **asincrone**
+- Non c’è condivisione diretta dello **stato** tra gli attori
+- L’accesso allo stato interno di un attore avviene tramite messaggi
+
+Gli attori sono eseguiti in parallelo e implementati come **thread leggeri in user-space** (spazio utente), rendendo il modello altamente efficiente e scalabile per applicazioni concorrenti e distribuite.
+
+![alt text](img/image-1.png)
+
+### La concorrenza nel modello Actor si basa su tre elementi fondamentali
+1. **Funzione `spawn()`**: permette di creare nuovi attori.
+2. **Operatore `!`**: invia messaggi ad altri attori.
+3. **Pattern matching**: sui messaggi nella mailbox
+
+## GLi attori
+Ogni attore è caratterizzato da:
+
+- **un indirizzo** che lo identifica in modo univoco.
+- **una mailbox** che memorizza i messaggi ricevuti ma non ancora elaborati.
+
+I messaggi nella mailbox sono ordinati in base al tempo di arrivo, non a quello di invio.
+
+Per inviare un messaggio a un attore è necessario conoscere l'indirizzo (PID) dell'attore destinatario. E' utile anche includere il proprio indirizzo (PID) nel messaggio, nel caso si desideri una risposta;
+```erlang
+Exp1 ! Exp2
+```
+- **Exp1** deve identificare un attore (il destinatario).
+- **Exp2** può essere qualunque espressione valida in Erlang; il valore dell'invio corrisponde al risultato di **Exp2**.
+  
+Caratteristiche dell'invio dei messaggi:
+- L'invio **non fallisce** anche se l'attore destinatario non esiste o non è raggiungibile.
+- L'operazione di invio è **non bloccante**: il mittente non attende mai la ricezione del messaggio.
+
+Questi aspetti rendono la comunicazione tra attori affidabile e adatta alla concorrenza asincrona.
+## Recezione
+L'operazione di ricezione nei modelli Actor utilizza il **pattern matching** per gestire i messaggi.
+
+```erlang
+receive
+  Any -> do_something(Any)
+end
+```
+- L'attore estrae dalla mailbox il messaggio più vecchio che corrisponde al pattern `Any`.
+- Se la mailbox è vuota, l'attore resta bloccato in attesa di un messaggio.
+
+Esempio di ricezione con pattern specifico:
+```erlang
+receive
+  {Pid, something} -> do_something(Pid)
+end
+```
+- L'attore cerca di estrarre il messaggio più vecchio che corrisponde al pattern `{Pid, something}`.
+- Se non trova un messaggio corrispondente, resta bloccato finché un messaggio conforme non viene ricevuto.
+
+Ricezione con pattern multipli e condizioni aggiuntive (guardie):
+```erlang
+receive
+  Pattern1 [when GuardSeq1] -> Body1;
+  ...
+  Patternn [when GuardSeqn] -> Bodyn
+  [after Exprt -> Bodyt]
+end
+```
+- Se nessun pattern corrisponde ai messaggi nella mailbox, l’attore resta in attesa senza sollevare eccezioni.
+- Per evitare attese indefinite, si può utilizzare la clausola `after`: dopo **Exprt** millisecondi, l'attore viene risvegliato e esegue `Bodyt`.
+## PID pubblico
+Erlang offre un meccanismo per rendere pubblico il **PID** (Process Identifier) di un processo a tutti gli altri processi.
+
+- `register(an_atom, Pid)`: registra un PID associandolo a un atomo, rendendo il processo accessibile tramite il nome.
+- `unregister(an_atom)`: dissocia l'atomo dal PID registrato.
+- `whereis(an_atom) -> Pid | undefined`: restituisce il PID del processo associato all'atomo, oppure `undefined` se non esiste.
+- `registered()`: restituisce l'elenco di tutti gli atomi registrati.
+
+Una volta registrato, è possibile inviare messaggi direttamente al processo tramite il nome:
+
+```erlang
+name ! msg.
+```
+
+### Esempio di Implementazione: Modulo `clock`
+
+Di seguito è riportato un esempio di un modulo chiamato `clock`, che utilizza queste funzionalità per gestire un timer:
+
+```erlang
+-module(clock).
+-export([start/2, stop/0]).
+
+start(Time, Fun) ->
+    register(clock, spawn(fun() -> tick(Time, Fun) end)).
+
+stop() ->
+    clock ! stop.
+
+tick(Time, Fun) ->
+    receive
+        stop -> void
+    after
+        Time -> Fun(), tick(Time, Fun)
+    end.
+```
+## BEAM
+Gli attori non sono processi gestiti dal sistema operativo, ma dal **BEAM** (la VM di Erlang) che usa uno **scheduler preemptivo**. Se un attore esegue troppo a lungo o attende messaggi, viene sospeso e messo in coda.
