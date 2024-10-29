@@ -1,6 +1,5 @@
 ### Gruppo:
 + [Luca Carone Polettini](https://github.com/lochy54)
-+ [Bea Oldrati](https://github.com/Bea-Oldr)
 + [Giacomo Guidi](https://github.com/SirFuryy)
 ### Link Utili:
 + [imparare ocaml in y minuti](https://learnxinyminutes.com/docs/ocaml/)
