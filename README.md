@@ -674,3 +674,114 @@ tick(Time, Fun) ->
 ```
 ## BEAM
 Gli attori non sono processi gestiti dal sistema operativo, ma dal **BEAM** (la VM di Erlang) che usa uno **scheduler preemptivo**. Se un attore esegue troppo a lungo o attende messaggi, viene sospeso e messo in coda.
+Ecco una rielaborazione del contenuto del file, corretta e ampliata con dettagli per una maggiore chiarezza, e formattata in Markdown.
+
+
+
+
+## Introduzione agli Errori nei Programmi Concorrenziali
+
+Nella programmazione concorrente, quando due processi sono correlati:
+- Gli errori in un processo possono influenzare il comportamento dell'altro.
+- La funzione BIF `link/1` permette di monitorare i processi collegati.
+
+### Gestione degli Errori con i Segnali di Uscita
+
+Quando un processo **A** è collegato a un processo **B**:
+- Se **B** termina, viene inviato a **A** un segnale di uscita nel formato `{'EXIT', Pid, Reason}`.
+- Questo segnale contiene informazioni sul motivo della terminazione.
+
+
+
+## Funzione di Collegamento e Propagazione degli Errori
+
+La funzione `link/1` definisce un **percorso di propagazione degli errori bidirezzionale**:
+- Quando un processo muore, genera un segnale di uscita che viene trasmesso a tutti i processi collegati.
+- Se un processo termina naturalmente, il motivo (`Reason`) dell’uscita è **normal**.
+- È possibile inviare segnali di uscita espliciti con `exit(Pid, Reason)` per simulare una "morte" senza terminare il mittente.
+
+In Erlang, esistono due tipi di processi quando si tratta di gestire segnali di uscita: **processi normali** e **processi di sistema**.
+- Se un processo normale riceve un **segnale di uscita** da un altro processo a cui è collegato (ad esempio, perché quest'ultimo è terminato), **morirà** anche lui, propagando così l'errore. 
+- Quando un processo di sistema riceve un segnale di uscita, **non muore automaticamente**; invece, riceve il segnale come un normale messaggio nella propria **casella di posta** (mailbox).
+- Questo significa che il processo può scegliere come gestire il segnale, ad esempio loggando l’errore o eseguendo delle azioni di recupero, senza dover terminare.
+
+### Trasformare un Processo in Processo di Sistema
+Per trasformare un processo in un **processo di sistema**
+è sufficiente usare il comando `process_flag(trap_exit, true)`. Questo comando imposta il processo per **catturare i segnali di uscita** (trap exit), permettendogli di trattare tali segnali come messaggi anziché termini di terminazione.
+
+### Recezione di un processo normale
+| `trap_exit` | Segnale di Uscita | Azione del Processo Ricevente |
+|-------------|--------------------|-------------------------------|
+| `true`      | `kill`            | Il processo **muore** e propaga il segnale di terminazione ai processi collegati. |
+| `true`      | `X`               | Il processo **non muore**, ma aggiunge il segnale `{‘EXIT’, Pid, X}` alla sua casella di posta, dove può essere gestito come un normale messaggio. |
+| `false`     | `normal`          | Il processo **continua** l’esecuzione e il segnale di uscita viene ignorato (non ha alcun effetto sul processo ricevente). |
+| `false`     | `kill`            | Il processo **muore** e propaga il segnale `kill` ai processi collegati. |
+| `false`     | `X`               | Il processo **muore** e trasmette il segnale `{‘EXIT’, Pid, X}` ai processi collegati. |
+
+
+## Strategie di Gestione degli Errori
+A seconda delle esigenze, possiamo gestire gli errori in modo flessibile:
+
+1. **Ignorare gli errori**:  
+   ```erlang
+   Pid = spawn(fun() -> ... end)
+   ```
+2. **Morire in caso di errore**:  
+   ```erlang
+   Pid = spawn_link(fun() -> ... end)
+   ```
+3. **Gestire gli errori esplicitamente**:  
+   ```erlang
+   process_flag(trap_exit, true),
+   Pid = spawn_link(fun() -> ... end)
+   ```
+## Esempio di Error Handling
+
+Il modulo `edemo1` crea tre processi **A**, **B** e **C**:
+- **A** è configurato per catturare i segnali di uscita (`trap_exit` impostato a `true`).
+- **B** cattura i segnali di uscita solo se `Bool` è `true`.
+- **C** può terminare con diverse ragioni (es. `{die, Reason}` o `{divide, N}`).
+
+```erlang
+-module(edemo1).
+-export([start/2]).
+
+start(Bool, M) ->
+    A = spawn(fun() -> a() end),
+    B = spawn(fun() -> b(A, Bool) end),
+    C = spawn(fun() -> c(B, M) end),
+    sleep(1000), status(b, B), status(c, C).
+
+a() -> process_flag(trap_exit, true), wait(a).
+b(A, Bool) -> process_flag(trap_exit, Bool), link(A), wait(b).
+c(B, M) ->
+    link(B),
+    case M of
+        {die, Reason} -> exit(Reason);
+        {divide, N} -> 1 / N, wait(c);
+        normal -> true
+    end.
+```
+
+### Funzioni di Supporto
+Il modulo include funzioni di supporto come `wait/1`, `sleep/1` e `status/2` per gestire e verificare lo stato dei processi.
+### Esempi di Esecuzione
+
+- **Esecuzione 1**: `edemo1:start(false, {die, normal})`
+    - **C** muore trasmettendo `{normal, ...}`.
+    - **B** e **A** continuano a funzionare, **B** ignora il segnale di uscita di **C**.
+
+- **Esecuzione 2**: `edemo1:start(false, {divide, 0})`
+    - **C** muore trasmettendo `{badarith, ...}`.
+    - **B** muore perchè il messeaggio non è normal
+
+## Monitor: Collegamenti Asimmetrici
+
+I **monitor** sono collegamenti unidirezionali:
+- Se un processo **A** monitora un processo **B**, e **B** termina, a **A** viene inviato un messaggio `DOWN`.
+- Al contrario, se **A** muore, **B** non riceve alcun segnale.
+
+```erlang
+Ref = erlang:monitor(process, Pid)
+```
+
