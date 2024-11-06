@@ -785,3 +785,130 @@ I **monitor** sono collegamenti unidirezionali:
 Ref = erlang:monitor(process, Pid)
 ```
 
+
+## La programmazione distribuita 
+Offre numerosi vantaggi:
+- **Performance**
+- **Affidabilità**
+- **Scalabilità**
+- **Applicazioni Distribuite**
+
+### Modelli di Distribuzione in Erlang
+1. **Erlang Distribuito**: Permette di eseguire applicazioni su nodi Erlang fortemente accoppiati, supportando lo spawning di processi su ogni nodo.
+2. **Distribuzione basata su Socket**: Ideale per ambienti non fidati, con connessioni limitate e un controllo dettagliato sull’esecuzione di processi.
+
+### Esempio: Name Server 
+```erlang
+-module(kvs).
+-export([start/0, store/2, lookup/1]).
+
+start() -> register(kvs, spawn(fun() -> loop() end)).
+
+store(Key, Value) -> rpc({store, Key, Value}).
+
+lookup(Key) -> rpc({lookup, Key}).
+
+rpc(Q) ->
+    kvs ! {self(), Q},
+    receive
+        {kvs, Reply} -> Reply
+    end.
+
+loop() ->
+    receive
+        {From, {store, Key, Value}} -> 
+            put(Key, {ok, Value}), 
+            From ! {kvs, true}, 
+            loop();
+        {From, {lookup, Key}} -> 
+            From ! {kvs, get(Key)}, 
+            loop()
+    end.
+```
+- `start()`: Avvia il server e lo registra col nome `kvs`.
+- `store(Key, Value)`: Salva un valore associato a una chiave.
+- `lookup(Key)`: Cerca il valore associato alla chiave.
+```shell
+1> kvs:start().
+true
+2> kvs:store({location, walter}, "Genova").
+true
+3> kvs:lookup({location, walter}).
+{ok, "Genova"}
+4> kvs:lookup({location, cazzola}).
+undefined
+```
+### Esecuzione Distribuita su Localhost
+```shell
+[sif@surtur] erl -sname sif
+(sif@surtur)1> kvs:start().
+true
+(sif@surtur)2> kvs:lookup(weather).
+{ok, sunny}
+
+[amora@surtur] erl -sname amora
+(amora@surtur)1> rpc:call(sif@surtur, kvs, store, [weather, sunny]).
+true
+(amora@surtur)2> rpc:call(sif@surtur, kvs, lookup, [weather]).
+{ok, sunny}
+```
+
+## Distribution Primitives
+Per lavorare con nodi distribuiti, Erlang fornisce una serie di primitivi. Esempio di utilizzo:
+
+- **spawn**: Crea un processo su un nodo specifico.
+  
+  ```erlang
+  Pid = spawn(Node, Module, Function, ArgumentList).
+  ```
+- **monitor_node**: Monitora un nodo specifico.
+  ```erlang
+  monitor_node(Node, true).
+  ```
+
+## Sistema di Protezione tramite Cookie
+
+Erlang richiede che i nodi abbiano un **cookie identico** per comunicare. Esistono tre metodi principali per impostare il cookie:
+1. Tramite `$HOME/.erlang.cookie`.
+2. Opzione `-setcookie` durante l'avvio della VM.
+3. Utilizzando `erlang:set_cookie` all'interno del programma.
+
+## Il modulo lib_chan
+Il modulo **lib_chan** di Erlang fornisce un controllo dettagliato sulla distribuzione dei processi.
+
+### 1. Avviare il Server `lib_chan`
+La funzione principale per avviare il server è:
+```erlang
+start_server() -> true
+```
+Questa funzione avvia un server sulla macchina locale. La configurazione del server è definita nel file `$HOME/.erlang_config/lib_chan.conf`.
+
+- **Definizione del Servizio**:
+  ```erlang
+  {service, S, password, P, mfa, SomeMod, SomeFunc, SomeArgs}
+  ```
+  Ogni servizio definito ha vari parametri:
+  - **S**: Nome del servizio.
+  - **password, P**: Password per l'accesso. Solo i client con la password corretta possono utilizzare il servizio.
+  - **mfa**: Identifica il modulo (`SomeMod`), la funzione (`SomeFunc`) e gli argomenti (`SomeArgs`) da eseguire.
+
+### 3. Connessione a un Servizio
+
+Per collegarsi a un servizio, si utilizza la funzione `connect`:
+
+```erlang
+connect(Host, Port, S, P, ArgsC) -> {ok, Pid} | {error, Why}
+```
+
+Dove:
+- **Host** e **Port**: Specificano l'host e la porta del server.
+- **S**: Nome del servizio a cui connettersi.
+- **P**: Password richiesta per accedere al servizio.
+- **ArgsC**: Argomenti specifici del client che verranno passati alla funzione di servizio.
+
+### Configurazione nel File `.erlang_config/lib_chan.conf`
+
+```erlang
+{port, 12340}.
+{service, nameServer, password, "ABXy45", mfa, mod_name_server, start_me_up, notUsed}.
+```
