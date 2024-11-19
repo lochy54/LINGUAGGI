@@ -912,3 +912,112 @@ Dove:
 {port, 12340}.
 {service, nameServer, password, "ABXy45", mfa, mod_name_server, start_me_up, notUsed}.
 ```
+# Scala
+**Caratteristiche principali**:  
+- Sintassi succinta ed elegante (riduzione del codice del 50-75%).  
+- Supporto per interpreti interattivi e linguaggi specifici di dominio (DSL).  
+- Unisce programmazione orientata agli oggetti e funzionale.  
+
+Scala è fortemente tipizzato e offre:  
+- Tipi astratti e dipendenti dal contesto.  
+- Classi generiche e metodi polimorfici.  
+- Inferenza di tipo limitata.  
+
+## Primo programma in Scala 
+**Classe:**  
+```scala
+class Upper {
+  def upper(strings: String*): Seq[String] = {
+    strings.map(_.toUpperCase())
+  }
+}
+
+val up = new Upper
+Console.println(up.upper("A", "First", "Scala", "Program"))
+```
+**Oggetto singolo (singleton):**  
+```scala
+object Upper {
+  def upper(strings: String*) = strings.map(_.toUpperCase())
+}
+
+println(Upper.upper("A", "First", "Scala", "Program"))
+```
+- Scala utilizza oggetti invece di metodi statici come in Java.  
+- L'underscore (`_`) funge da carattere jolly.  
+
+**Esempio di metodo `main` in un oggetto singolo:**  
+```scala
+object Upper {
+  def main(args: Array[String]) = {
+    args.map(_.toUpperCase).foreach(printf("%s ", _))
+    println("")
+  }
+}
+```
+## Tipi in Scala 
+- **Any:** radice della gerarchia dei tipi.  
+  - **AnyRef:** radice per i tipi di riferimento (oggetti Java e Scala).  
+  - **AnyVal:** radice per i tipi primitivi (es. `Int`, `Double`).  
+- **Null:** rappresenta il valore vuoto per i tipi di riferimento.  
+- **Nothing:** tipo speciale, usato per rappresentare un'assenza definitiva (ad esempio una lista vuota `List[Nothing]`).  
+
+## Paradigma Orientato agli Oggetti 
+- Tutto è un oggetto.  
+- Ogni operazione è un metodo.  
+
+Esempio:  
+```scala
+scala> 1.+(2)
+res0: Int = 3
+```
+
+## Variabili
+- **Immutable:** dichiarate con `val`.  
+- **Mutable:** dichiarate con `var`.  
+
+## Case Classes
+Scala semplifica la gestione di strutture immutabili con le *case classes*:  
+```scala
+case object True extends Bool {
+  def and(b: => Bool) = b
+  def or(b: => Bool) = this
+}
+
+case object False extends Bool {
+  def and(b: => Bool) = this
+  def or(b: => Bool) = b
+}
+```
+
+
+## Opzioni: None e Some 
+Scala utilizza `Option` per rappresentare valori che potrebbero essere nulli , Esempio:  
+```scala
+val capitals = Map("Liguria" -> "Genova", "Lombardia" -> "Milano")
+println(capitals.get("Liguria").getOrElse("Non trovata"))
+```
+
+## Funzioni e Metodi 
+Scala supporta funzioni come valori di prima classe:  
+```scala
+val succ = (x: Int) => x + 1
+def succMethod(x: Int) = x + 1
+```
+
+Funzioni parametriche:  
+```scala
+def id[T](x: T): T = x
+```
+
+
+
+### **Comprensioni e Generatori**  
+Strumenti potenti per iterare e costruire nuove collezioni:  
+```scala
+val sumEvens = (nums: List[Int]) => (for (n <- nums if n % 2 == 0) yield n).sum
+```
+
+Scala offre anche funzioni di utilità come `map`, `reduce`, `exists`, e `forall`.  
+
+
