@@ -1186,3 +1186,393 @@ in C12: c = null
 in C12: c = C12
 After Creating C12
 ```
+# Avanzamenti nella Programmazione Orientata agli Oggetti
+
+**Autore:** Walter Cazzola  
+Dipartimento di Informatica, Università degli Studi di Milano  
+e-mail: cazzola@di.unimi.it  
+twitter: @w_cazzola
+
+## Parola chiave `override`
+
+### Classi e Trait
+- Possono dichiarare membri astratti: campi, metodi e tipi.
+- Un membro astratto deve essere definito da una classe derivata o un trait prima che si possa creare un'istanza.
+
+Per eseguire un override di un membro, Scala richiede la parola chiave `override`:
+- È opzionale per i membri astratti.
+- Non può essere usata se non si sta sovrascrivendo un membro.
+
+#### Benefici
+1. Individua errori di battitura nei membri che si intendeva sovrascrivere.
+2. Evita sovrascritture indesiderate, come conflitti tra membri in classi o trait derivati.
+
+> **Nota:** L'annotazione `@Override` in Java aiuta solo a prevenire errori di battitura, ma non i conflitti tra membri.
+
+---
+
+## Algoritmo di Linearizzazione
+
+### Metodo
+1. Inserire il tipo attuale dell'istanza come primo elemento.
+2. Da destra a sinistra, calcolare la linearizzazione di ciascun tipo, aggiungendola a quella cumulativa.
+3. Da sinistra a destra, rimuovere i tipi che appaiono più volte (mantenendo solo l'ultima occorrenza).
+4. Aggiungere `ScalaObject`, `AnyRef` e `Any` alla fine.
+
+### Esempio
+```scala
+class C1 { def m = List("C1") }
+trait T1 extends C1 { override def m = { "T1" :: super.m } }
+trait T2 extends C1 { override def m = { "T2" :: super.m } }
+trait T3 extends C1 { override def m = { "T3" :: super.m } }
+class C2A extends T2 { override def m = { "C2A" :: super.m } }
+class C2 extends C2A with T1 with T2 with T3 { override def m = { "C2" :: super.m } }
+
+def linearization(obj: C1, name: String) = {
+  val lin = obj.m ::: List("ScalaObject", "AnyRef", "Any")
+  println(name + ": " + lin)
+}
+
+linearization(new C2, "C2")
+```
+Output:
+```
+C2: List(C2, T3, T1, C2A, T2, C1, ScalaObject, AnyRef, Any)
+```
+
+---
+
+## Sovrascrittura di Campi e Tipi
+
+### Campi nei Trait
+```scala
+trait T1 { val name = "T1" }
+class Base
+class ClassWithT1 extends Base with T1 { override val name = "ClassWithT1" }
+val c = new ClassWithT1()
+println(c.name)
+
+class ClassExtendsT1 extends T1 { override val name = "ClassExtendsT1" }
+val c2 = new ClassExtendsT1()
+println(c2.name)
+```
+Output:
+```
+ClassWithT1
+ClassExtendsT1
+```
+
+### Campi nelle Classi
+```scala
+class C1 { val name = "C1"; var count = 0 }
+class ClassWithC1 extends C1 { override val name = "ClassWithC1"; count = 1 }
+val c = new ClassWithC1()
+println(c.name, c.count)
+```
+Output:
+```
+(ClassWithC1, 1)
+```
+
+
+## Classi e Trait
+- Possono dichiarare membri astratti: campi, metodi e tipi.
+- Un membro astratto deve essere definito da una classe derivata o un trait prima che si possa creare un'istanza.
+
+Per eseguire un override di un membro, Scala richiede la parola chiave `override`:
+- È opzionale per i membri astratti.
+- Non può essere usata se non si sta sovrascrivendo un membro.
+
+#### Benefici
+1. Individua errori di battitura nei membri che si intendeva sovrascrivere.
+2. Evita sovrascritture indesiderate, come conflitti tra membri in classi o trait derivati.
+
+
+## Algoritmo di Linearizzazione
+### Metodo
+1. Inserire il tipo attuale dell'istanza come primo elemento.
+2. Da destra a sinistra, calcolare la linearizzazione di ciascun tipo, aggiungendola a quella cumulativa.
+3. Da sinistra a destra, rimuovere i tipi che appaiono più volte (mantenendo solo l'ultima occorrenza).
+4. Aggiungere `ScalaObject`, `AnyRef` e `Any` alla fine.
+
+### Esempio
+```scala
+class C1 { def m = List("C1") }
+trait T1 extends C1 { override def m = { "T1" :: super.m } }
+trait T2 extends C1 { override def m = { "T2" :: super.m } }
+trait T3 extends C1 { override def m = { "T3" :: super.m } }
+class C2A extends T2 { override def m = { "C2A" :: super.m } }
+class C2 extends C2A with T1 with T2 with T3 { override def m = { "C2" :: super.m } }
+
+def linearization(obj: C1, name: String) = {
+  val lin = obj.m ::: List("ScalaObject", "AnyRef", "Any")
+  println(name + ": " + lin)
+}
+
+linearization(new C2, "C2")
+```
+Output:
+```
+C2: List(C2, T3, T1, C2A, T2, C1, ScalaObject, AnyRef, Any)
+```
+![alt text](image.png)
+
+## Sovrascrittura di Campi e Tipi
+
+### Campi nei Trait
+```scala
+trait T1 { val name = "T1" }
+class Base
+class ClassWithT1 extends Base with T1 { override val name = "ClassWithT1" }
+val c = new ClassWithT1()
+println(c.name)
+
+class ClassExtendsT1 extends T1 { override val name = "ClassExtendsT1" }
+val c2 = new ClassExtendsT1()
+println(c2.name)
+```
+Output:
+```
+ClassWithT1
+ClassExtendsT1
+```
+
+### Campi nelle Classi
+```scala
+class C1 { val name = "C1"; var count = 0 }
+class ClassWithC1 extends C1 { override val name = "ClassWithC1"; count = 1 }
+val c = new ClassWithC1()
+println(c.name, c.count)
+```
+Output:
+```
+(ClassWithC1, 1)
+```
+
+
+## Oggetti Companion
+
+Un oggetto e una classe (o tipo) dichiarati nello stesso package con lo stesso nome sono detti **companion**:
+- Nessuna collisione di namespace, perché:
+  - Il nome della classe è nello spazio dei tipi.
+  - Il nome dell'oggetto è nello spazio dei termini.
+
+### Metodo `apply`
+Quando un'istanza è seguita da parametri tra parentesi, il compilatore invoca automaticamente `apply`.
+
+#### Esempio
+```scala
+type Pair[+A, +B] = Tuple2[A, B]
+
+object Pair {
+  def apply[A, B](x: A, y: B) = Tuple2(x, y)
+}
+
+val p = Pair(1, "uno")
+```
+
+### Metodo `unapply`
+Utilizzato per estrarre le parti costituenti di un'istanza.
+```scala
+object Twice {
+  def unapply(z: Int): Option[Int] = if (z % 2 == 0) Some(z / 2) else None
+}
+
+val x = 42
+x match {
+  case Twice(n) => Console.println(n)
+}
+```
+Output:
+```
+21
+``` 
+# Avanzamenti nella Programmazione Orientata agli Oggetti
+
+**Autore:** Walter Cazzola  
+Dipartimento di Informatica, Università degli Studi di Milano  
+e-mail: cazzola@di.unimi.it  
+twitter: @w_cazzola
+
+## Parola chiave `override`
+
+### Classi e Trait
+- Possono dichiarare membri astratti: campi, metodi e tipi.
+- Un membro astratto deve essere definito da una classe derivata o un trait prima che si possa creare un'istanza.
+
+Per eseguire un override di un membro, Scala richiede la parola chiave `override`:
+- È opzionale per i membri astratti.
+- Non può essere usata se non si sta sovrascrivendo un membro.
+
+#### Benefici
+1. Individua errori di battitura nei membri che si intendeva sovrascrivere.
+2. Evita sovrascritture indesiderate, come conflitti tra membri in classi o trait derivati.
+
+> **Nota:** L'annotazione `@Override` in Java aiuta solo a prevenire errori di battitura, ma non i conflitti tra membri.
+
+---
+
+## Algoritmo di Linearizzazione
+
+### Metodo
+1. Inserire il tipo attuale dell'istanza come primo elemento.
+2. Da destra a sinistra, calcolare la linearizzazione di ciascun tipo, aggiungendola a quella cumulativa.
+3. Da sinistra a destra, rimuovere i tipi che appaiono più volte (mantenendo solo l'ultima occorrenza).
+4. Aggiungere `ScalaObject`, `AnyRef` e `Any` alla fine.
+
+### Esempio
+```scala
+class C1 { def m = List("C1") }
+trait T1 extends C1 { override def m = { "T1" :: super.m } }
+trait T2 extends C1 { override def m = { "T2" :: super.m } }
+trait T3 extends C1 { override def m = { "T3" :: super.m } }
+class C2A extends T2 { override def m = { "C2A" :: super.m } }
+class C2 extends C2A with T1 with T2 with T3 { override def m = { "C2" :: super.m } }
+
+def linearization(obj: C1, name: String) = {
+  val lin = obj.m ::: List("ScalaObject", "AnyRef", "Any")
+  println(name + ": " + lin)
+}
+
+linearization(new C2, "C2")
+```
+Output:
+```
+C2: List(C2, T3, T1, C2A, T2, C1, ScalaObject, AnyRef, Any)
+```
+
+---
+
+## Sovrascrittura di Campi e Tipi
+
+### Campi nei Trait
+```scala
+trait T1 { val name = "T1" }
+class Base
+class ClassWithT1 extends Base with T1 { override val name = "ClassWithT1" }
+val c = new ClassWithT1()
+println(c.name)
+
+class ClassExtendsT1 extends T1 { override val name = "ClassExtendsT1" }
+val c2 = new ClassExtendsT1()
+println(c2.name)
+```
+Output:
+```
+ClassWithT1
+ClassExtendsT1
+```
+
+### Campi nelle Classi
+```scala
+class C1 { val name = "C1"; var count = 0 }
+class ClassWithC1 extends C1 { override val name = "ClassWithC1"; count = 1 }
+val c = new ClassWithC1()
+println(c.name, c.count)
+```
+Output:
+```
+(ClassWithC1, 1)
+```
+
+---
+
+## Oggetti Companion
+
+### Concetto
+Un oggetto e una classe (o tipo) dichiarati nello stesso package con lo stesso nome sono detti **companion**:
+- Nessuna collisione di namespace, perché:
+  - Il nome della classe è nello spazio dei tipi.
+  - Il nome dell'oggetto è nello spazio dei termini.
+
+### Metodo `apply`
+Quando un'istanza è seguita da parametri tra parentesi, il compilatore invoca automaticamente `apply`.
+
+#### Esempio
+```scala
+type Pair[+A, +B] = Tuple2[A, B]
+
+object Pair {
+  def apply[A, B](x: A, y: B) = Tuple2(x, y)
+  def unapply[A, B](x: Tuple2[A, B]): Option[Tuple2[A, B]] = Some(x)
+}
+
+val p = Pair(1, "uno")
+```
+
+### Metodo `unapply`
+Utilizzato per estrarre le parti costituenti di un'istanza.
+```scala
+object Twice {
+  def unapply(z: Int): Option[Int] = if (z % 2 == 0) Some(z / 2) else None
+}
+
+val x = 42
+x match {
+  case Twice(n) => Console.println(n)
+}
+```
+Output:
+```
+21
+```
+
+## Classi Case
+
+### Proprietà
+- Le classi case:
+  - Esportano i parametri del costruttore.
+  - Supportano il pattern matching.
+- I parametri del costruttore sono trattati come valori pubblici.
+
+### Metodi Generati
+- `equals`, `hashCode` e `toString` basati sugli argomenti del costruttore.
+- Metodo `copy` per creare copie modificate.
+
+#### Esempio
+```scala
+abstract class Term
+case class Var(name: String) extends Term
+case class Fun(arg: String, body: Term) extends Term
+case class App(f: Term, v: Term) extends Term
+
+val x1 = Var("x")
+val x2 = Var("x")
+val y1 = Var("y")
+println(s"$x1 == $x2 => ${x1 == x2}")
+println(s"$x1 == $y1 => ${x1 == y1}")
+```
+Output:
+```
+Var(x) == Var(x) => true
+Var(x) == Var(y) => false
+```
+
+### Pattern Matching
+```scala
+object TermTest extends Application {
+  def printTerm(term: Term): Unit = term match {
+    case Var(n) => print(n)
+    case Fun(x, b) => print("\u03bb" + x + "."); printTerm(b)
+    case App(f, v) => Console.print("("); printTerm(f); print(" "); printTerm(v); print(")")
+  }
+
+  def isIdentityFun(term: Term): Boolean = term match {
+    case Fun(x, Var(y)) if x == y => true
+    case _ => false
+  }
+
+  val id = Fun("x", Var("x"))
+  val t = Fun("x", Fun("y", App(Var("x"), Var("y"))))
+  printTerm(t); println; println(isIdentityFun(t))
+  printTerm(id); println; println(isIdentityFun(id))
+}
+```
+Output:
+```
+λx.λy.(x y)
+false
+λx.x
+true
+```
+
