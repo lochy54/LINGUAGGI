@@ -1575,4 +1575,127 @@ false
 λx.x
 true
 ```
+## DSL
+## PARSER
+Un parser combinator è una funzione di ordine superiore che accetta uno o più parser come input e restituisce un nuovo parser.
+### Idea di base:
+- I parser combinator sono dei blocchi che possiamo utilizzare per produrre nuovi parser più complessi.
+- Sono costruzioni modulari che permettono di gestire casi sequenziali, alternativi, ripetizioni e termini opzionali.
 
+### Esempio di linguaggio al quale vogliamo arrivare
+```scala
+paycheck for employee "Buck Trends" is salary for 2 weeks minus deductions for {
+    federal income tax is 25% of gross,
+    state income tax is 5% of gross,
+    insurance premiums are 500 in gross currency,
+    retirement fund contributions are 10% of gross
+}
+```
+### La grammatica generallizata
+```
+paycheck = empl•gross•deduct
+empl = paycheck•for•employee•employeeName
+gross = is•salary•for•duration
+deduct = minus•deductions•for•{•deductItems•}
+employeeName = "•name• •name•"
+name = ...
+duration = decimalNumber•weeksDays
+weeksDays = week | weeks | day | days
+deductItems = deductItem {•,•deductItem } | ε
+deductItem = deductKind•deductAmount
+deductKind = tax | insurance | retirement
+tax = fedState•income•tax
+fedState = federal | state
+insurance = insurance•premiums
+retirement = retirement•fund•contributions
+deductAmount = percentage | amount
+percentage = toBe•doubleNumber•percent•of•gross
+amount = toBe•doubleNumber•in•gross•currency
+toBe = is | are
+decimalNumber = ...
+doubleNumber = ...
+```
+### La grammatica in scala
+```scala
+package payroll.pcdsl
+import scala.util.parsing.combinator._
+import payroll._
+import payroll.Type2Money._
+class PayrollParserCombinatorsV1 extends JavaTokenParsers {
+def paycheck = empl ~ gross ~ deduct
+def empl = "paycheck" ~> "for" ~> "employee" ~> employeeName
+def gross = "is" ~> "salary" ~> "for" ~> duration
+def deduct = "minus" ~> "deductions" ~> "for" ~> "{" ~> deductItems <~ "}"
+def employeeName = stringLiteral // stringLiteral from JavaTokenParsers
+def duration = decimalNumber ~ weeksDays // decimalNumber from JavaTokenParsers
+def weeksDays = "weeks" | "week" | "days" | "day"
+def deductItems = repsep(deductItem, ",")
+def deductItem = deductKind ~> deductAmount
+def deductKind = tax | insurance | retirement
+def tax = fedState <~ "income" <~ "tax"
+def fedState = "federal" | "state"
+def insurance = "insurance" ~> "premiums"
+def retirement = "retirement" ~> "fund" ~> "contributions"
+def deductAmount = percentage | amount
+def percentage = toBe ~> doubleNumber <~ "percent" <~ "of" <~ "gross"
+def amount = toBe ~> doubleNumber <~ "in" <~ "gross" <~ "currency"
+def toBe = "is" | "are"
+def doubleNumber = floatingPointNumber // floatingPointNumber from JavaTokenParsers
+}
+```
+Appuntino
+```scala
+def amount = toBe ~> doubleNumber <~ "in" <~ "gross" <~ "currency" ^^ { Money(_) }
+//^^ per scrivere il codice direttamente
+```
+### Composizione sequenziale
+- **`~`**: Usato quando i risultati prodotti dalle funzioni a sinistra e a destra di `~` devono essere mantenuti per ulteriori elaborazioni.  
+  ```scala
+  def paycheck = empl ~ gross ~ deduct
+  ```
+
+- **`~>`**: Usato quando il risultato delle funzioni a sinistra non è più necessario.  
+  ```scala
+  def empl = "paycheck" ~> "for" ~> "employee" ~> employeeName
+  ```
+  
+- **`<~`**: Usato quando il risultato delle funzioni a destra non è più necessario.  
+  ```scala
+  def tax = fedState <~ "income" <~ "tax"
+  ```
+
+### Composizione Alternativa
+- **`|`**: Usato per esprimere che due o più parser sono in alternativa.  
+  ```scala
+  def weeksDays = "weeks" | "week" | "days" | "day"
+  ```
+
+### Composizione Ripetitiva
+- **`rep/repsep`**: Usati per corrispondere a zero o più ripetizioni.  
+  ```scala
+  def deduct = "minus" ~> "deductions" ~> "for" ~> "{" ~> repsep(deductItem, ",") <~ "}"
+  ```
+- Esiste anche un metodo **`opt`** per termini opzionali, che in questo caso non viene utilizzato.
+
+### Utilizzo del Parser
+```scala
+val p = new PayrollParserCombinatorsV1
+p.parseAll(p.paycheck, input) match {
+  case p.Success(result, _) => 
+    // Operazioni da eseguire in caso di successo
+  case x => 
+    // Gestione di errori o fallimenti del parsing
+}
+```
+- **`parseAll`**: Metodo fornito dalla classe base, prende in input:
+  - Un parser (ad esempio `p.paycheck`).
+  - Una stringa (`input`) da analizzare.
+- **Successo del parsing**:
+  - Se il parsing è corretto, restituisce un'istanza di `p.Success`, che contiene:
+    - Il risultato del parsing (ad esempio, un albero o un valore elaborato).
+    - Il resto dell'input non analizzato (di solito vuoto in caso di parsing completo).
+- **Fallimento del parsing**:
+  - Se il parsing fallisce, viene restituito un'istanza derivata da `p.NoSuccess`:
+    - **`p.Failure`** o **`p.Error`**, che contengono:
+      - Un messaggio d'errore.
+      - L'input non consumato nel punto di errore.
